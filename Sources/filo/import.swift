@@ -21,6 +21,10 @@ struct Import: ParsableCommand{
     
     
     func run() throws {
+        if source == nil || library == nil {
+            print("The source and library are mandatory".red)
+            return
+        }
         print("Source folder: \(source!) -> library: \(library!)")
     }
 }
