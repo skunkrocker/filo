@@ -1,8 +1,3 @@
-//
-//  File.swift
-//  
-//
-//
 
 import ArgumentParser
 
