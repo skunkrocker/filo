@@ -9,6 +9,7 @@ let package = Package(
         .macOS(.v11)
     ],
     dependencies: [
+        .package(url: "https://github.com/cfilipov/TextTable", .branch("master")),
         .package(url: "https://github.com/kradalby/SwiftExif.git", from: "0.0.6"),
         .package(url:"https://github.com/apple/swift-argument-parser" , from: "0.0.1"),
         .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.0.0"))
@@ -18,6 +19,7 @@ let package = Package(
             name: "filo",
             dependencies: [
                 .product(name: "Rainbow", package: "Rainbow"),
+                .product(name: "TextTable", package: "TextTable"),
                 .product(name: "SwiftExif", package: "SwiftExif"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
                 
