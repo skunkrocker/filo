@@ -1,7 +1,6 @@
 import Rainbow
 import ArgumentParser
 
-let TRAFIC_LIGHT = "  ❯".green + "❯".yellow + "❯".red
 
 struct Filo: ParsableCommand {
     static let configuration = CommandConfiguration(
