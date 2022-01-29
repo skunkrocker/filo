@@ -2,8 +2,6 @@ import SwiftExif
 import Foundation
 import ArgumentParser
 
-fileprivate let pathArgumentHelp = ArgumentHelp(stringLiteral: "The absolute path of the photo to read the EXIF data.".blue )
-
 struct Exif: ParsableCommand {
     
     public static let configuration = conf(" Extract the EXIF Data of a single image and prints it out.")

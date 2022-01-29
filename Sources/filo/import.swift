@@ -3,7 +3,7 @@ import ArgumentParser
 
 struct Import: ParsableCommand{
     
-    public static let configuration = conf(" Imports the images from the source folder in to the library folder.")
+    public static let configuration = conf(" Imports the photos from the source folder in to the library folder.")
     
     @Option(name: .shortAndLong, help: help("Path to the folder with the images for importing."))
     private var source: String?
