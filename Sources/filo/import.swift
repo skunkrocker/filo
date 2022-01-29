@@ -3,15 +3,13 @@ import ArgumentParser
 
 struct Import: ParsableCommand{
     
-    public static let configuration = CommandConfiguration(
-        abstract: "Imports the images from the source folder in to the library folder."
-    )
+    public static let configuration = conf(" Imports the images from the source folder in to the library folder.")
     
-    @Option(name: .shortAndLong, help: "The folder that holds the images that are to be imported.")
+    @Option(name: .shortAndLong, help: help("Path to the folder with the images for importing."))
     private var source: String?
     
     
-    @Option(name: .shortAndLong, help: "The folder is the library where the images are to be imported.")
+    @Option(name: .shortAndLong, help: help("Path to the library folder where the images are imported."))
     private var library: String?
     
     

@@ -1,15 +1,14 @@
-//import TextTable
 import SwiftExif
 import Foundation
 import ArgumentParser
 
+fileprivate let pathArgumentHelp = ArgumentHelp(stringLiteral: "The absolute path of the photo to read the EXIF data.".blue )
+
 struct Exif: ParsableCommand {
     
-    public static let configuration = CommandConfiguration(
-        abstract: " Reads the EXIF Data of a single image and prints it out.".blue
-    )
+    public static let configuration = conf(" Extract the EXIF Data of a single image and prints it out.")
     
-    @Argument(help: "The absolute path of the photo for which the EXIF should be read")
+    @Argument(help: help("Path to the EXIF data photo."))
     private var path: String
     
     func run() throws {
@@ -17,7 +16,15 @@ struct Exif: ParsableCommand {
         let url = URL(fileURLWithPath: path)
         let exifImage = SwiftExif.Image(imagePath: url)
         
-        alternateExifTable(exifDict: exifImage.Exif())
+        let exifDict = exifImage.Exif()
+        
+        if exifDict.isEmpty {
+            print(Error(hint: "Check if the path is correct.", message: "Could not load EXIF for the image."))
+            return
+        }
+        
+        print(exifDict: exifDict)
+        
     }
     
 }
