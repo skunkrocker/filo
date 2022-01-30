@@ -1,4 +1,5 @@
 import GRDB
+import PathKit
 import ArgumentParser
 
 struct Config: ParsableCommand{
@@ -34,13 +35,20 @@ struct Config: ParsableCommand{
             if initialize {
                 libConfInit(dataBase: db!)
             }
-            let libs: [Lib] = findLibConfig(dataBase: db!)
-            if !libs.isEmpty {
+            var libs: [Lib] = findLibConfig(dataBase: db!)
+            
+            let absLib = Path(lib!).absolute()
+            
+            if libs.isEmpty {
+                storeLibConfig(dataBase: db!, lib: Lib(path: absLib.string , name: libName))
+            } else {
                 let hasEntry = libs.contains(where: { $0.name == libName })
                 if !hasEntry {
-                    storeLibConfig(dataBase: db!, lib: Lib(path: src! , name: libName))
+                    storeLibConfig(dataBase: db!, lib: Lib(path: absLib.string , name: libName))
                 }
             }
+            
+            libs = findLibConfig(dataBase: db!)
             print(libs)
         }
     }

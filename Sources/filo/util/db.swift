@@ -50,9 +50,12 @@ func openDb() -> DatabaseQueue? {
     return nil
 }
 
-func libConfInit(dataBase:  DatabaseQueue)  {
+func libConfInit(dataBase:  DatabaseQueue?) -> Void {
+    if dataBase == nil {
+        return
+    }
     do {
-        try dataBase.write { db in
+        try dataBase!.write { db in
             try db.create(table: "lib") { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("name", .text).notNull()
@@ -65,9 +68,12 @@ func libConfInit(dataBase:  DatabaseQueue)  {
     
 }
 
-func storeLibConfig(dataBase: DatabaseQueue, lib: Lib) {
+func storeLibConfig(dataBase: DatabaseQueue?, lib: Lib) -> Void {
+    if dataBase == nil {
+        return
+    }
     do {
-        try dataBase.write { db in
+        try dataBase!.write { db in
             try lib.insert(db)
         }
     } catch {
@@ -77,15 +83,18 @@ func storeLibConfig(dataBase: DatabaseQueue, lib: Lib) {
     }
 }
 
-func findLibConfig(dataBase: DatabaseQueue) -> [Lib] {
-    var libs: [Lib] = []
+func findLibConfig(dataBase: DatabaseQueue?) -> [Lib] {
+    if dataBase == nil {
+        return []
+    }
+    //var libs: [Lib] = []
     do {
-        libs = try dataBase.read { db in
+        return try dataBase!.read { db in
             try Lib.fetchAll(db)
         }
     } catch {
         //TODO: print pretty
         print("could not read lib")
     }
-    return libs
+    return []
 }
