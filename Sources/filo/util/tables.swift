@@ -12,17 +12,16 @@ let TRAFIC_LIGHT_OPAQUE = "❯".red + "❯".yellow + "❯".green
 struct EXIF {
     let key: String
     let value: String
-    let separator: String
+    let traficLight: String
 }
 
-let exifTable = TextTable<EXIF> {
+private let exifTable = TextTable<EXIF> {
     [
-        Column(title: "", value: $0.separator),
+        Column(title: "", value: $0.traficLight),
         Column(title: "", value: $0.key),
         Column(title: "", value: $0.value),
     ]
 }
-
 
 func print(exifDict: [String: [String: String]] ) {
     
@@ -32,10 +31,10 @@ func print(exifDict: [String: [String: String]] ) {
         var i = 0
         for meta in dc.value {
             if i % 2 == 0{
-                let exif = EXIF(key: meta.key.green, value: meta.value.green, separator: TRAFIC_LIGHT_OPAQUE)
+                let exif = EXIF(key: meta.key.green, value: meta.value.green, traficLight: TRAFIC_LIGHT_OPAQUE)
                 data.append(exif)
             } else {
-                let exif = EXIF(key: meta.key.blue, value: meta.value.blue, separator: TRAFIC_LIGHT)
+                let exif = EXIF(key: meta.key.blue, value: meta.value.blue, traficLight: TRAFIC_LIGHT)
                 data.append(exif)
             }
             i += 1
@@ -54,14 +53,29 @@ struct Error {
     let message: String
 }
 
-let errorTable = TextTable<Error> {
+private let errorTable = TextTable<Error> {
     [
-        Column("" <- $0.message),
-        Column("" <- $0.hint)
+        Column(title: "", value: TRAFIC_LIGHT + " ⚠️  " +  $0.message.red)
+    ]
+}
+private let hintTable = TextTable<Error> {
+    [
+        Column(title: "", value: TRAFIC_LIGHT_OPAQUE +  " 💡 " + $0.hint.green)
     ]
 }
 
 func print(_ error: Error) {
-    let colorError: Error = Error(hint: "⚠️  " + error.hint.green, message: TRAFIC_LIGHT + " " + error.message.red)
-    errorTable.print([colorError], style: Style.plain)
+    errorTable.print([error], style: Style.plain)
+    hintTable.print([error], style: Style.plain)
+}
+
+private let libTable = TextTable<Lib> {
+    [
+        Column(title: "", value: "📚" +  "  " + $0.name.uppercased().blue + " " + TRAFIC_LIGHT + "  "),
+        Column(title: "", value: $0.path.green)
+    ]
+}
+
+func print(_ libs: [Lib]) {
+    libTable.print(libs, style: Style.plain)
 }

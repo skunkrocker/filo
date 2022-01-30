@@ -3,21 +3,21 @@ import ArgumentParser
 
 struct Import: ParsableCommand{
     
-    public static let configuration = conf(" Imports the photos from the source folder in to the library folder.")
+    public static let configuration = conf("Import photos from the source to the library folder.")
     
-    @Option(name: .shortAndLong, help: help("Path to the folder with the images for importing."))
-    private var source: String?
+    @Option(name: .shortAndLong, help: help_blue("Path to the folder with the images for importing."))
+    private var src: String?
     
     
-    @Option(name: .shortAndLong, help: help("Path to the library folder where the images are imported."))
-    private var library: String?
+    @Option(name: .shortAndLong, help: help_blue("Path to the library folder where the images are imported."))
+    private var lib: String?
     
     
     func run() throws {
-        if source == nil || library == nil {
+        if src == nil || lib == nil {
             print("The source and library are mandatory".red)
             return
         }
-        print("Source folder: \(source!) -> library: \(library!)")
+        print("Source folder: \(src!) -> library: \(lib!)")
     }
 }
