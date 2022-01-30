@@ -9,6 +9,7 @@ let package = Package(
         .macOS(.v12)
     ],
     dependencies: [
+        .package(url: "https://github.com/kylef/PathKit.git", .branch("master")),
         .package(url: "https://github.com/groue/GRDB.swift.git", from: "5.19.0"),
         .package(url: "https://github.com/kradalby/SwiftExif.git", from: "0.0.6"),
         .package(url: "https://github.com/cfilipov/TextTable", .branch("master")),
@@ -19,6 +20,7 @@ let package = Package(
         .executableTarget(
             name: "filo",
             dependencies: [
+                .product(name: "PathKit", package: "PathKit"),
                 .product(name: "GRDB", package: "GRDB.swift"),
                 .product(name: "Rainbow", package: "Rainbow"),
                 .product(name: "TextTable", package: "TextTable"),
