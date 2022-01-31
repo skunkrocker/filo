@@ -69,13 +69,13 @@ func print(_ error: Error) {
     hintTable.print([error], style: Style.plain)
 }
 
-private let libTable = TextTable<Lib> {
+private let libTable = TextTable<LibraryConfig> {
     [
         Column(title: "", value: "📚" +  "  " + $0.name.uppercased().blue + " " + TRAFIC_LIGHT + "  "),
         Column(title: "", value: $0.path.green)
     ]
 }
 
-func print(_ libs: [Lib]) {
+func print(_ libs: [LibraryConfig]) {
     libTable.print(libs, style: Style.plain)
 }

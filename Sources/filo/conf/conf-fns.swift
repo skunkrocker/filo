@@ -1,12 +1,12 @@
 import GRDB
 import PathKit
 
-private let libEntityDef = EntityDef(id: "id", name: "lib", columns: [
+private let libEntityDef = EntityDef(id: "id", name: "LibraryConfig", columns: [
     DBColumn(name: "name"),
     DBColumn(name: "path")
 ])
 
-func configLib(lib: Lib, initFlag: Bool, onDone: (DatabaseQueue) -> Void) -> Void {
+func configLib(lib: LibraryConfig, initFlag: Bool, onDone: (DatabaseQueue) -> Void) -> Void {
     
     let absLib = Path(lib.path).absolute()
     
@@ -20,11 +20,11 @@ func configLib(lib: Lib, initFlag: Bool, onDone: (DatabaseQueue) -> Void) -> Voi
             onSuccess: { libs in
                 let hasEntry = libs.contains(where: { $0.name == lib.name })
                 if !hasEntry {
-                    storeLibConfig(dataBase: db, lib: Lib(path: absLib.string , name: lib.name))
+                    storeLibConfig(dataBase: db, lib: LibraryConfig(path: absLib.string , name: lib.name))
                 }
             },
             onNotFound: {
-                storeLibConfig(dataBase: db, lib: Lib(path: absLib.string , name: lib.name))
+                storeLibConfig(dataBase: db, lib: LibraryConfig(path: absLib.string , name: lib.name))
             },
             onError: { error in
                 print(error)
