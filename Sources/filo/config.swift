@@ -24,32 +24,8 @@ struct Config: ParsableCommand{
     
     
     func run() throws {
-        if src == nil || lib == nil {
-            print("The source and library are mandatory".red)
-            return
-        }
-        
-        let db = openDb()
-        
-        if db != nil {
-            if initialize {
-                libConfInit(dataBase: db!)
-            }
-            var libs: [Lib] = findLibConfig(dataBase: db!)
-            
-            let absLib = Path(lib!).absolute()
-            
-            if libs.isEmpty {
-                storeLibConfig(dataBase: db!, lib: Lib(path: absLib.string , name: libName))
-            } else {
-                let hasEntry = libs.contains(where: { $0.name == libName })
-                if !hasEntry {
-                    storeLibConfig(dataBase: db!, lib: Lib(path: absLib.string , name: libName))
-                }
-            }
-            
-            libs = findLibConfig(dataBase: db!)
-            print(libs)
+        if lib != nil {
+            configLib(lib: Lib(path: lib!, name: libName), initFlag: initialize )
         }
     }
 }
