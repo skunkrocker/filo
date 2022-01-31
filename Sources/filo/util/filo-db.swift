@@ -1,4 +1,5 @@
 import GRDB
+import Foundation
 
 struct EntityDef {
     let id: String
@@ -11,16 +12,14 @@ struct DBColumn {
     let type: Database.ColumnType? = .text
 }
 
-func connect(onSuccess: (DatabaseQueue) -> Void, onError: (Error) -> Void, after: (DatabaseQueue) -> Void) -> Void {
+
+func connect(onSuccess: (DatabaseQueue) -> Void) -> Void {
     var dbConnect: DatabaseQueue? = nil
     do {
         dbConnect = try DatabaseQueue(path: filoConf())
         onSuccess(dbConnect!)
     } catch {
-        onError(Error(hint: "Write access to the home folder is needed.", message: "Could not connect to the DB under '~/{userName}/.filo'"))
-    }
-    if dbConnect != nil {
-        after(dbConnect!)
+        print(Error(hint: "Write access to the home folder is needed.", message: "Could not connect to the DB under '~/{userName}/.filo'"))
     }
 }
 
@@ -42,10 +41,10 @@ func initEntity(in dataBase: DatabaseQueue, entityDef: EntityDef, initFlag: Bool
 }
 
 func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: DatabaseQueue,
-                                                            type: T,
-                                                            onSuccess: ([T]) -> Void,
-                                                            onNotFound: () -> Void,
-                                                            onError: (Error) -> Void
+                                                               type: T,
+                                                               onSuccess: ([T]) -> Void,
+                                                               onNotFound: () -> Void,
+                                                               onError: (Error) -> Void
 )  {
     do {
         let entityList = try dataBase.read { db in
@@ -63,3 +62,17 @@ func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: Data
         onError(Error(hint: "Call config command with '-i' flag.", message: "Failed to read library."))
     }
 }
+
+func printAllLib(in dataBase: DatabaseQueue) {
+    do {
+        let entityList = try dataBase.read { db in
+            try Lib.fetchAll(db)
+        }
+        if !entityList.isEmpty {
+            print(entityList)
+        }
+    } catch {
+        print(Error(hint: "Call config command with '-i' flag.", message: "Failed to print entries."))
+    }
+}
+
