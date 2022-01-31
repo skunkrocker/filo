@@ -1,4 +1,5 @@
 import GRDB
+import PathKit
 import Foundation
 
 //###########################################
@@ -22,22 +23,20 @@ struct SourceConfig: DBConfig {
     let name: String
 }
 
+let configDir: Path = Path("~/.filo")
+let configFile: Path = configDir + Path("filo.sqlite")
+
 func filoConf() -> String {
-    let filoDir = manager.homeDirectoryForCurrentUser.path + "/.filo"
-    let sqlDB   = filoDir + "/filo.sqlite"
     
-    var isDir : ObjCBool = true
-    let filoConfigDir = manager.fileExists(atPath: sqlDB, isDirectory: &isDir)
-    
-    if !filoConfigDir {
+    if !configDir.exists {
         do{
-            try manager.createDirectory(atPath: filoDir , withIntermediateDirectories: true, attributes: nil)
+            try manager.createDirectory(atPath: configDir.absolute().string , withIntermediateDirectories: true, attributes: nil)
         } catch {
             print(Error(hint: "Consider creating the folder '~/.filo'.", message: "Could not create the folder under $HOME directory."))
         }
     }
     
-    return sqlDB
+    return configFile.absolute().string
 }
 
 
@@ -59,10 +58,10 @@ struct DBColumn {
 
 
 func connect(onSuccess: (DatabaseQueue) -> Void) -> Void {
-    var dbConnect: DatabaseQueue? = nil
+
     do {
-        dbConnect = try DatabaseQueue(path: filoConf())
-        onSuccess(dbConnect!)
+        let dbConnect = try DatabaseQueue(path: filoConf())
+        onSuccess(dbConnect)
     } catch {
         print(Error(hint: "Write access to the home folder is needed.", message: "Could not connect to the DB under '~/{userName}/.filo'"))
     }
@@ -102,9 +101,7 @@ func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: Data
         }
         
     } catch {
-        //TODO: print pretty
-        //print("could not read lib")
-        onError(Error(hint: "Call config command with '-i' flag.", message: "Failed to read library."))
+        onError(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
     }
 }
 
@@ -117,7 +114,7 @@ func printAllLib(in dataBase: DatabaseQueue) {
             print(entityList)
         }
     } catch {
-        print(Error(hint: "Call config command with '-i' flag.", message: "Failed to print entries."))
+        //print(Error(hint: "Call config command with '-i' flag.", message: "Failed to print entries."))
     }
 }
 
@@ -131,7 +128,5 @@ func storeLibConfig(dataBase: DatabaseQueue?, lib: LibraryConfig) -> Void {
         }
     } catch {
         print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store library: \(lib.name)"))
-        
-        print("Error info: \(error)")
     }
 }

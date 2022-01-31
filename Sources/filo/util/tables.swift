@@ -53,20 +53,9 @@ struct Error {
     let message: String
 }
 
-private let errorTable = TextTable<Error> {
-    [
-        Column(title: "", value: TRAFIC_LIGHT + " ⚠️  " +  $0.message.red)
-    ]
-}
-private let hintTable = TextTable<Error> {
-    [
-        Column(title: "", value: TRAFIC_LIGHT_OPAQUE +  " 💡 " + $0.hint.green)
-    ]
-}
-
 func print(_ error: Error) {
-    errorTable.print([error], style: Style.plain)
-    hintTable.print([error], style: Style.plain)
+    print(TRAFIC_LIGHT + " ⚠️  " + error.message.red)
+    print(TRAFIC_LIGHT_OPAQUE +  " 💡 " + error.hint.green.bold)
 }
 
 private let libTable = TextTable<LibraryConfig> {
