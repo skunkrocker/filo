@@ -7,12 +7,17 @@ import Foundation
 
 let manager = FileManager.default
 
-struct Lib:  Codable, FetchableRecord, PersistableRecord  {
+protocol DBConfig: Codable, FetchableRecord, PersistableRecord  {
+    var path: String { get }
+    var name: String { get }
+}
+
+struct Lib:  DBConfig  {
     let path: String
     let name: String
 }
 
-struct Src: Codable, FetchableRecord, PersistableRecord  {
+struct Src: DBConfig {
     let path: String
     let name: String
 }
