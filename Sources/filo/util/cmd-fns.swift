@@ -20,6 +20,11 @@ func conf(_ desc:  String, cmdOpt: CmdOpt = .cmd) -> CommandConfiguration {
     return CommandConfiguration(abstract: NL + TWO_TABS + cmdOpt.rawValue.green + desc.blue)
 }
 
+func conf(_ desc:  String, cmdOpt: CmdOpt = .cmd, subcommands: [ParsableCommand.Type]) -> CommandConfiguration {
+    return CommandConfiguration(abstract: NL + TWO_TABS + cmdOpt.rawValue.green + desc.blue, subcommands: subcommands)
+}
+
+
 func conf_disc(_ desc:  String, disc: String, cmdOpt: CmdOpt = .cmd) -> CommandConfiguration {
     return CommandConfiguration(abstract: NL + TWO_TABS + cmdOpt.rawValue.green + desc.blue, discussion: disc)
 }
