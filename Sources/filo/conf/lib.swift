@@ -16,8 +16,8 @@ struct Lib: ParsableCommand{
     
     func run() throws {
         if lib != nil {
-            let lib = LibraryConfig(path: lib!, name: name)
-            configLib(lib: lib, initFlag: initialize) { db in
+            let library = LibraryConfig(path: lib!, name: name)
+            configLib(lib: library, initFlag: initialize) { db in
                 printAllLib(in: db)
             }
         }

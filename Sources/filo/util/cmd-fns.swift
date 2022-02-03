@@ -1,7 +1,7 @@
 import ArgumentParser
 
 let NL = "\n"
-let TWO_TABS = "        "
+let TWO_TABS = ""
 
 func help_blue(_ desc: String, cmdOpt: CmdOpt = .opt) -> ArgumentHelp {
     return ArgumentHelp(stringLiteral: cmdOpt.rawValue.green + desc.blue)
