@@ -58,13 +58,61 @@ func print(_ error: Error) {
     print(TRAFIC_LIGHT_OPAQUE +  " 💡 " + error.hint.green.bold)
 }
 
-private let libTable = TextTable<LibraryConfig> {
+
+//########################################################
+//          print library in the formated table          #
+//########################################################
+
+struct TableLibraryConfig {
+    let separator: String
+    let lib: LibraryConfig
+}
+
+private let libTable = TextTable<TableLibraryConfig> {
     [
-        Column(title: "", value: "📚" +  "  " + $0.name.uppercased().blue + " " + TRAFIC_LIGHT + "  "),
-        Column(title: "", value: $0.path.green)
+        Column(title: "", value: "📚" +  "  " + $0.lib.name.uppercased().blue + "  "),
+        Column(title: "", value: $0.separator),
+        Column(title: "", value: $0.lib.path.green)
     ]
 }
 
 func print(_ libs: [LibraryConfig]) {
-    libTable.print(libs, style: Style.plain)
+    print("\n    Photo Library".bold )
+    var i = 0
+    let tableSourceConfig = libs.map { (lib) -> TableLibraryConfig in
+        let separator = i % 2 == 0 ? TRAFIC_LIGHT : TRAFIC_LIGHT_OPAQUE
+        i += 1
+        return TableLibraryConfig(separator: separator, lib: lib)
+    }
+    libTable.print(tableSourceConfig, style: Style.plain)
+}
+
+//########################################################
+//          print source in the formated table          #
+//########################################################
+
+struct TableSourceConfig {
+    let separator: String
+    let src: SourceConfig
+}
+
+private let srcTable = TextTable<TableSourceConfig> {
+    [
+        Column(title: "", value: "📷" +  "  " + $0.src.name.uppercased().blue + "   "),
+        Column(title: "", value: $0.separator),
+        Column(title: "", value: $0.src.path.green)
+    ]
+}
+
+func print(_ srcs: [SourceConfig]) {
+    print("\n    Photo source".bold )
+    var i = 0
+    
+    let tableSourceConfig = srcs.map { (src) -> TableSourceConfig in
+        let separator = i % 2 == 0 ? TRAFIC_LIGHT : TRAFIC_LIGHT_OPAQUE
+        i += 1
+        return TableSourceConfig(separator: separator, src: src)
+    }
+    
+    srcTable.print(tableSourceConfig, style: Style.plain)
 }

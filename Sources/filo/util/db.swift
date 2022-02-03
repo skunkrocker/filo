@@ -130,3 +130,29 @@ func storeLibConfig(dataBase: DatabaseQueue?, lib: LibraryConfig) -> Void {
         print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store library: \(lib.name)"))
     }
 }
+
+func printAllSrc(in dataBase: DatabaseQueue) {
+    do {
+        let entityList = try dataBase.read { db in
+            try SourceConfig.fetchAll(db)
+        }
+        if !entityList.isEmpty {
+            print(entityList)
+        }
+    } catch {
+        //print(Error(hint: "Call config command with '-i' flag.", message: "Failed to print entries."))
+    }
+}
+
+func storeSrcConfig(dataBase: DatabaseQueue?, src: SourceConfig) -> Void {
+    if dataBase == nil {
+        return
+    }
+    do {
+        try dataBase!.write { db in
+            try src.insert(db)
+        }
+    } catch {
+        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store source: \(src.name)"))
+    }
+}
