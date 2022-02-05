@@ -1,50 +1,79 @@
-
+import Darwin
+import Rainbow
 import Foundation
 
-extension FileHandle {
-    
-    func write(string: String) {
-        write(string.data(using: .utf8)!)
-    }
-    
-    public func clearLine() {
-        write(string:"\r")
-    }
+enum BarType {
+    case pac
+    case bars
 }
 
-import Foundation
-
-public struct ProgressBar {
-    
-    private var width: Int = 60
-    private var output: FileHandle
-    
-    public init(output: FileHandle) {
-        let w = Double(termWidth()) / 1.3
-        print(w)
-        self.width = Int(w)
-        self.output = output
-        self.output.write(string:"")
+//from the cli it can be retreived by the command
+//`tput cols 2>/dev/null`
+//tty terminals also support
+//`stty size 2>/dev/null`
+func termWidth() -> Int {
+    var win = winsize()
+    if ioctl(STDOUT_FILENO, TIOCGWINSZ, &win) == 0 {
+        return Int(win.ws_col)
     }
-    
-    public mutating func render(count: Int, total: Int) {
-        
-        let pac = pacManProgress(width: width, count: count, total: total)
-        //let progress = barProgress(width: width, count: count, total: total)
-        
-        //tput cuu1 twice to move the curser up two lines up
-        output.clearLine()
-        output.write(string: pac)
-    }
+    return 80 //default
 }
 
-extension String {
-    static func *(char: String, count: Int) -> String {
-        var s = ""
-        for _ in 0..<count {
-            s.append(char)
+func barProgress(width: Int, count: Int, total: Int) -> String {
+    let progress      = Float(count) / Float(total)
+    let numberOfBars  = Int(floor(progress * Float(width)))
+    let numberOfTicks = width - numberOfBars
+    
+    let bars  = "🁢" * numberOfBars
+    let ticks = "-" * numberOfTicks
+    
+    let percentage = Int(floor(progress * 100))
+    return "[\(bars.blue.bold)\(ticks.bold)] \(percentage)%"
+}
+
+func pacManProgress(width: Int, count: Int, total: Int) -> String {
+    let logo = "Pᗣᗧ".yellow + "MᗣN".green
+    
+    let progress       = Float(count) / Float(total)
+    let leftSideChars  = Int(floor(progress * Float(width - logo.count)))
+    let rightSideChars = width - logo.count - leftSideChars
+    
+    var pac = "ᗧ"
+    var left = ""
+    if leftSideChars - 1 > 0 {
+        left = " " * leftSideChars
+    }
+    
+    var right = "•" * rightSideChars
+    right     = right.red + logo
+    
+    if rightSideChars == 0 {
+        pac  = "💥"
+        left = " " * (left.count - 1)
+    }
+    
+    let percentage = Int(floor(progress * 100))
+    
+    return "[\(left)\(pac.yellow.bold)\(right)] \(percentage)%"
+}
+
+func bar(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
+    let sout = FileHandle.standardOutput
+    
+    let w = Double(termWidth()) / 1.2
+    let width = Int(w)
+    
+    return { step in
+        var barString = ""
+        switch type {
+            case .pac:
+                barString = pacManProgress(width: width, count: step, total: total)
+                break
+            case .bars:
+                barString = barProgress(width: width, count: step, total: total)
         }
-        return s
+        sout.clearLine()
+        sout.write(string: barString)
     }
 }
 
