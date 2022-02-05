@@ -6,22 +6,29 @@ struct Exif: ParsableCommand {
     
     public static let configuration = conf("Extract the EXIF Data of a single image and prints it out.")
     
-    @Argument(help: help_blue("Path to the EXIF data photo."))
-    private var path: String
+    //@Argument(help: help_blue("Path to the EXIF data photo."))
+    //private var path: String
     
     func run() throws {
+        /*
+         let url = URL(fileURLWithPath: path)
+         let exifImage = SwiftExif.Image(imagePath: url)
+         
+         let exifDict = exifImage.Exif()
+         
+         if exifDict.isEmpty {
+         print(Error(hint: "Check if the file name and the path are correct.", message: "Failed to load photo EXIF data."))
+         return
+         }
+         
+         print(exifDict: exifDict)
+         */
+        var progressBar = ProgressBar(output: FileHandle.standardOutput)
         
-        let url = URL(fileURLWithPath: path)
-        let exifImage = SwiftExif.Image(imagePath: url)
-        
-        let exifDict = exifImage.Exif()
-        
-        if exifDict.isEmpty {
-            print(Error(hint: "Check if the file name and the path are correct.", message: "Failed to load photo EXIF data."))
-            return
+        for i in 0...100 {
+            progressBar.render(count: i, total:100)
+            Thread.sleep(forTimeInterval: 0.5)
         }
-        
-        print(exifDict: exifDict)
         
     }
 }
