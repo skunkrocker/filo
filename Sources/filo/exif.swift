@@ -23,12 +23,12 @@ struct Exif: ParsableCommand {
          
          print(exifDict: exifDict)
          */
-        var progressBar = ProgressBar(output: FileHandle.standardOutput)
+        
+        let progress = bar(total: 100)
         
         for i in 0...100 {
-            progressBar.render(count: i, total:100)
-            Thread.sleep(forTimeInterval: 0.5)
+            progress(i)
+            Thread.sleep(forTimeInterval: 0.2)
         }
-        
     }
 }
