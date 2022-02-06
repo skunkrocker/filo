@@ -116,14 +116,57 @@ func barrr(type: BarType = .pac, total: Int = 100) -> (update: (Int) -> Void, co
                 case .bars:
                     barString = barProgress(width: width, count: step, total: total)
             }
+            /*
+             terminal?.moveCursor(up: 1)
+             terminal?.clearLine()
+             terminal?.write("Hello world".bold)
+             terminal?.endLine()
+             */
             terminal?.clearLine()
             terminal?.write(barString)
         },
         complete: {
             terminal?.endLine()
-            terminal?.clearLine()
             terminal?.write("Done".bold + " 🚀")
             terminal?.endLine()
         }
     )
 }
+
+func barz(type: BarType = .pac, total: Int = 100) -> (update: (Int, String?) -> Void, complete: () -> Void)  {
+    let sout          = stdoutStream as WritableByteStream
+    let terminal      = TerminalController(stream: sout)
+    let terminalWidth = TerminalController.self.terminalWidth()!
+    
+    let w     = Double(terminalWidth) / 1.2
+    let width = Int(w)
+    
+    return (
+        update: { (step, header) in
+            var barString = ""
+            switch type {
+                case .pac:
+                    barString = pacManProgress(width: width, count: step, total: total)
+                    break
+                case .bars:
+                    barString = barProgress(width: width, count: step, total: total)
+            }
+            
+            if header != nil {
+                terminal?.moveCursor(up: 1)
+                terminal?.clearLine()
+                terminal?.write(header!)
+                terminal?.endLine()
+            }
+            
+            terminal?.clearLine()
+            terminal?.write(barString)
+        },
+        complete: {
+            terminal?.endLine()
+            terminal?.write("Done".bold + " 🚀")
+            terminal?.endLine()
+        }
+    )
+}
+
