@@ -49,7 +49,7 @@ func pacManProgress(width: Int, count: Int, total: Int) -> String {
     right     = right.red + logo
     
     if rightSideChars == 0 {
-        pac  = "💥 "
+        pac  = "💥"
         left = " " * (left.count - 1)
     }
     
@@ -58,7 +58,7 @@ func pacManProgress(width: Int, count: Int, total: Int) -> String {
     return "[\(left)\(pac.yellow.bold)\(right)] \(percentage)%"
 }
 
-func bar(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
+func standardBar(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
     let sout = FileHandle.standardOutput
     
     let w = Double(termWidth()) / 1.2
@@ -79,11 +79,10 @@ func bar(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
 }
 
 func barr(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
-    let sout = stdoutStream as WritableByteStream
-    
+    let sout     = stdoutStream as WritableByteStream
     let terminal = TerminalController(stream: sout)
     
-    let w = Double(TerminalController.self.terminalWidth()!) / 1.2
+    let w     = Double(TerminalController.self.terminalWidth()!) / 1.2
     let width = Int(w)
     
     return { step in
@@ -100,3 +99,31 @@ func barr(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
     }
 }
 
+func barrr(type: BarType = .pac, total: Int = 100) -> (update: (Int) -> Void, complete: () -> Void)  {
+    let sout     = stdoutStream as WritableByteStream
+    let terminal = TerminalController(stream: sout)
+    
+    let w     = Double(TerminalController.self.terminalWidth()!) / 1.2
+    let width = Int(w)
+    
+    return (
+        update: { step in
+            var barString = ""
+            switch type {
+                case .pac:
+                    barString = pacManProgress(width: width, count: step, total: total)
+                    break
+                case .bars:
+                    barString = barProgress(width: width, count: step, total: total)
+            }
+            terminal?.clearLine()
+            terminal?.write(barString)
+        },
+        complete: {
+            terminal?.endLine()
+            terminal?.clearLine()
+            terminal?.write("Done".bold + " 🚀")
+            terminal?.endLine()
+        }
+    )
+}

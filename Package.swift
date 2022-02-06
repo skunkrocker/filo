@@ -27,7 +27,7 @@ let package = Package(
                 .product(name: "TextTable", package: "TextTable"),
                 .product(name: "SwiftExif", package: "SwiftExif"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "SwiftToolsSupport", package: "swift-tools-support-core")
+                .product(name: "SwiftToolsSupport-auto", package: "swift-tools-support-core")
             ]),
         .testTarget(
             name: "filoTests",
