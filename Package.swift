@@ -14,7 +14,8 @@ let package = Package(
         .package(url: "https://github.com/kradalby/SwiftExif.git", from: "0.0.6"),
         .package(url: "https://github.com/cfilipov/TextTable", .branch("master")),
         .package(url:"https://github.com/apple/swift-argument-parser" , from: "0.0.1"),
-        .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.0.0"))
+        .package(url: "https://github.com/onevcat/Rainbow", .upToNextMajor(from: "4.0.0")),
+        .package(url: "https://github.com/apple/swift-tools-support-core.git", .upToNextMajor(from: "0.2.3"))
     ],
     targets: [
         .executableTarget(
@@ -25,8 +26,8 @@ let package = Package(
                 .product(name: "Rainbow", package: "Rainbow"),
                 .product(name: "TextTable", package: "TextTable"),
                 .product(name: "SwiftExif", package: "SwiftExif"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
-                
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SwiftToolsSupport", package: "swift-tools-support-core")
             ]),
         .testTarget(
             name: "filoTests",
