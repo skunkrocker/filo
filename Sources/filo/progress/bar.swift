@@ -1,5 +1,6 @@
 import Darwin
 import Rainbow
+import TSCBasic
 import Foundation
 
 enum BarType {
@@ -48,7 +49,7 @@ func pacManProgress(width: Int, count: Int, total: Int) -> String {
     right     = right.red + logo
     
     if rightSideChars == 0 {
-        pac  = "💥"
+        pac  = "💥 "
         left = " " * (left.count - 1)
     }
     
@@ -74,6 +75,28 @@ func bar(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
         }
         sout.clearLine()
         sout.write(string: barString)
+    }
+}
+
+func barr(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
+    let sout = stdoutStream as WritableByteStream
+    
+    let terminal = TerminalController(stream: sout)
+    
+    let w = Double(TerminalController.self.terminalWidth()!) / 1.2
+    let width = Int(w)
+    
+    return { step in
+        var barString = ""
+        switch type {
+            case .pac:
+                barString = pacManProgress(width: width, count: step, total: total)
+                break
+            case .bars:
+                barString = barProgress(width: width, count: step, total: total)
+        }
+        terminal?.clearLine()
+        terminal?.write(barString)
     }
 }
 
