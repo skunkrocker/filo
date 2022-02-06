@@ -23,11 +23,12 @@ struct Exif: ParsableCommand {
          
          print(exifDict: exifDict)
          */
-        let progress = barr(total: 100)
+        let progress = barrr(total: 100)
         
         for i in 0...100 {
-            progress(i)
+            progress.update(i)
             Thread.sleep(forTimeInterval: 0.2)
         }
+        progress.complete()
     }
 }
