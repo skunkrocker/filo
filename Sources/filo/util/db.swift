@@ -8,12 +8,12 @@ import Foundation
 
 let manager = FileManager.default
 
-protocol DBConfig: Codable, FetchableRecord, PersistableRecord  {
+protocol DBConfig: Codable, FetchableRecord, PersistableRecord {
     var path: String { get }
     var name: String { get }
 }
 
-struct LibraryConfig:  DBConfig  {
+struct LibraryConfig: DBConfig {
     let path: String
     let name: String
 }
@@ -23,19 +23,22 @@ struct SourceConfig: DBConfig {
     let name: String
 }
 
+let sourceConfigType = SourceConfig(path: "", name: "").self
+let libraryConfigType = LibraryConfig(path: "", name: "").self
+
 let configDir: Path = Path("~/.filo")
 let configFile: Path = configDir + Path("filo.sqlite")
 
 func filoConf() -> String {
-    
+
     if !configDir.exists {
-        do{
-            try manager.createDirectory(atPath: configDir.absolute().string , withIntermediateDirectories: true, attributes: nil)
+        do {
+            try manager.createDirectory(atPath: configDir.absolute().string, withIntermediateDirectories: true, attributes: nil)
         } catch {
             print(Error(hint: "Consider creating the folder '~/.filo'.", message: "Could not create the folder under $HOME directory."))
         }
     }
-    
+
     return configFile.absolute().string
 }
 
@@ -89,7 +92,7 @@ func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: Data
                                                                onSuccess: ([T]) -> Void,
                                                                onNotFound: () -> Void,
                                                                onError: (Error) -> Void
-)  {
+) {
     do {
         let entityList = try dataBase.read { db in
             try (T).fetchAll(db)
@@ -99,10 +102,39 @@ func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: Data
         } else {
             onSuccess(entityList)
         }
-        
+
     } catch {
         onError(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
     }
+}
+
+func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: DatabaseQueue, forType: T, onSuccess: ([T]) -> Void) -> Void {
+    do {
+        let entityList = try dataBase.read { db in
+            try (T).fetchAll(db)
+        }
+        if !entityList.isEmpty {
+            onSuccess(entityList)
+        }
+
+    } catch {
+        print(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
+    }
+}
+
+func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: DatabaseQueue, forType: T) -> [T] {
+    do {
+        let entityList = try dataBase.read { db in
+            try (T).fetchAll(db)
+        }
+        if !entityList.isEmpty {
+            return entityList
+        }
+
+    } catch {
+        print(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
+    }
+    return []
 }
 
 func printAllLib(in dataBase: DatabaseQueue) {
@@ -127,7 +159,7 @@ func storeLibConfig(dataBase: DatabaseQueue?, lib: LibraryConfig) -> Void {
             try lib.insert(db)
         }
     } catch {
-        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store library: \(lib.name)"))
+        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder", message: "Failed to store library: \(lib.name)"))
     }
 }
 
@@ -153,6 +185,30 @@ func storeSrcConfig(dataBase: DatabaseQueue?, src: SourceConfig) -> Void {
             try src.insert(db)
         }
     } catch {
-        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store source: \(src.name)"))
+        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder", message: "Failed to store source: \(src.name)"))
     }
+}
+
+func srcAndLibConfig(in db: DatabaseQueue) -> (srcs: [SourceConfig], libs: [LibraryConfig]) {
+    let libConfigs = findAll(in: db, forType: libraryConfigType)
+    if libConfigs.isEmpty {
+        print(Error(hint: "Consider using the config command.", message: "No library folders config found."))
+        return (
+                srcs: [],
+                libs: []
+        )
+    }
+
+    let srcConfigs = findAll(in: db, forType: sourceConfigType)
+    if srcConfigs.isEmpty {
+        print(Error(hint: "Consider using the config command.", message: "No source folders config found."))
+        return (
+                srcs: [],
+                libs: []
+        )
+    }
+    return (
+            srcs: srcConfigs,
+            libs: libConfigs
+    )
 }
