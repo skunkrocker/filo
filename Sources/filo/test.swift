@@ -1,5 +1,6 @@
 import PathKit
 import TSCBasic
+import SwiftDate
 import SwiftExif
 import Foundation
 import ArgumentParser
@@ -9,6 +10,7 @@ struct Test: ParsableCommand {
     public static let configuration = conf("Testing stuff around.")
 
     func run() throws {
+        SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd"]
 
         connect() { db in
 

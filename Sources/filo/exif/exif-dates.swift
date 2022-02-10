@@ -37,16 +37,9 @@ func dateExif(_ path: String) -> DateExif {
     }
     return dateExif
 }
-
 func date(of isoDate: String) -> DateInRegion? {
     if isoDate != nil && isoDate != "" {
-        //print("isoDate: \(isoDate)")
-        var newDate = isoDate.toDate("yyyy:MM:dd HH:mm:ss")
-        if newDate == nil {
-            newDate = isoDate.toDate("yyyy:MM:dd")
-        }
-        //print(newDate)
-        return newDate
+        return isoDate.toDate()
     }
     return nil
 }
