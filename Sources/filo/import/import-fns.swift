@@ -11,10 +11,10 @@ func forAllSrcAndLibs() {
     connect() { db in
         let config = srcAndLibConfig(in: db)
         readFilePath(config.srcs) { file in
-            forLibSubDir(config.libs, path: file) { libPath in
+            createLibraryFolders(config.libs, file: file) { libPath in
                 print(libPath.bold)
                 //TODO copy the file in all library target folders
-            }
+            }//end create library sub folders
         }//end read file path
     }// end connect db
     /*
@@ -49,11 +49,11 @@ func readFilePath(_ srcs: [SourceConfig], filePath: (String) -> Void) -> Void {
     }
 }
 
-func forLibSubDir(_ libs: [LibraryConfig], path: String, copyTo: (String) -> Void) {
-    let dates = dateExif(path)
+func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (String) -> Void) {
+    let dates = dateExif(file)
     for lib in libs {
         if let subFolder = getFolderStructure(exif: dates) {
-            let subFoldrPath = Path(lib.path + "/" + subFolder + "/")
+            let subFoldrPath = Path(lib.path + "/" + subFolder)
             if !subFoldrPath.exists {
                 do {
                     try makeDirectories(AbsolutePath(subFoldrPath.absolute().string))
@@ -61,7 +61,7 @@ func forLibSubDir(_ libs: [LibraryConfig], path: String, copyTo: (String) -> Voi
                     //TODO figure out what to do with this
                 }
             }
-            copyTo(subFoldrPath.absolute().string)
+            copyTo(subFoldrPath.absolute().string + "/")
         }
     }
 }
