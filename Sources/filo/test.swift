@@ -17,10 +17,18 @@ struct Test: ParsableCommand {
             readFilePath(config.srcs) { file in
                 let dates = dateExif(file)
                 print(file.bold)
-                print("gps: \(dates.gps_date)".red)
-                print("date time: \(dates.date_time)".yellow)
-                print("digitalized: \(dates.date_digitalized)".green)
-                print("original: \(dates.date_original)".blue)
+                if let gps_date = dates.date_original {
+                    print("gps_date: day: \(gps_date.day), month: \(gps_date.month), year: \(gps_date.year)")
+                }
+                if let date_time = dates.date_time {
+                    print("date_time: day: \(date_time.day), month: \(date_time.month), year: \(date_time.year)")
+                }
+                if let date_digitalized = dates.date_digitalized {
+                    print("date_digitalized: day: \(date_digitalized.day), month: \(date_digitalized.month), year: \(date_digitalized.year)")
+                }
+                if let date_original = dates.date_original {
+                    print("date_original: day: \(date_original.day), month: \(date_original.month), year: \(date_original.year)")
+                }
                 for lib in config.libs {
                     //print(lib.name)
                     //TODO extract exif data from file rename file

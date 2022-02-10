@@ -1,11 +1,12 @@
 import SwiftExif
+import SwiftDate
 import Foundation
 
 struct DateExif {
-    var gps_date: String = ""
-    var date_time: String = ""
-    var date_original: String = ""
-    var date_digitalized: String = ""
+    var gps_date: DateInRegion? = nil
+    var date_time: DateInRegion? = nil
+    var date_original: DateInRegion? = nil
+    var date_digitalized: DateInRegion? = nil
 }
 
 fileprivate let gps_date = "GPS Date"
@@ -21,20 +22,33 @@ func dateExif(_ path: String) -> DateExif {
     for dc in exifImage.Exif() {
         for exif in dc.value {
             if exif.key == date_time {
-                dateExif.date_time = exif.value
+                dateExif.date_time = date(of: exif.value) ?? nil
             }
             if exif.key == gps_date {
-                dateExif.gps_date = exif.value
+                dateExif.gps_date = date(of: exif.value) ?? nil
             }
             if exif.key == date_original {
-                dateExif.date_original = exif.value
+                dateExif.date_original = date(of: exif.value) ?? nil
             }
             if exif.key == date_digitalized {
-                dateExif.date_digitalized = exif.value
+                dateExif.date_digitalized = date(of: exif.value) ?? nil
             }
         }
     }
     return dateExif
+}
+
+func date(of isoDate: String) -> DateInRegion? {
+    if isoDate != nil && isoDate != "" {
+        //print("isoDate: \(isoDate)")
+        var newDate = isoDate.toDate("yyyy:MM:dd HH:mm:ss")
+        if newDate == nil {
+            newDate = isoDate.toDate("yyyy:MM:dd")
+        }
+        //print(newDate)
+        return newDate
+    }
+    return nil
 }
 
 func printExif(_ path: String) {
