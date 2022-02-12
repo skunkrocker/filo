@@ -116,3 +116,7 @@ func print(_ srcs: [SourceConfig]) {
     
     srcTable.print(tableSourceConfig, style: Style.plain)
 }
+
+func noFilesFound() {
+    print("💡 " +  "Nothing found in the source folders".yellow.bold)
+}

@@ -5,41 +5,55 @@ import SwiftExif
 import Foundation
 import Foundation
 
+//###########################################
+//       read the paths for each file       #
+//       that is found in the configured    #
+//          folders in the config db        #
+//       the folders in the library folder  #
+//      will be created by the pattern      #
+//      yyyy/MM/dd and will copy all the    #
+//      files according to their EXIF in    #
+//      the appropriate library folder      #
+//###########################################
 func forAllSrcAndLibs() {
     SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd"]
 
-    connect() { db in
+    connect { db in
         let config = srcAndLibConfig(in: db)
-        readFilePath(config.srcs) { file in
-            createLibraryFolders(config.libs, file: file) { libPath in
-                print(libPath.bold)
-                //TODO copy the file in all library target folders
-            }//end create library sub folders
-        }//end read file path
-    }// end connect db
-    /*
-        let progress = barz(type: .pac2, total: 100)
-
-        for i in 0...100 {
-            progress.update(i, "File: \(i)")
-            Thread.sleep(forTimeInterval: 0.2)
+        let files = readFilePaths(config.srcs)
+        if (files.isEmpty) {
+            noFilesFound()
+            return
         }
+        let progress = barz(total: files.count)
+        for (index, file) in files.enumerated() {
+            createLibraryFolders(config.libs, file: file) { libPath in
+                //TODO copy the file in all library target folders
+                progress.update(index + 1, file.bold)
+                Thread.sleep(forTimeInterval: 1)
+            }//end read file path
+        }//end of files loop
         progress.complete()
-         */
+    }// end connect db
 }
 
-func readFilePath(_ srcs: [SourceConfig], filePath: (String) -> Void) -> Void {
+//###########################################
+//      read the paths of the files in      #
+//      the configured source folders       #
+//###########################################
+fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> [String] {
     if srcs.isEmpty {
         print(Error(hint: "Try config command to configure source folders.", message: "There are no sources configured."))
-        return
+        return []
     }
+    var allFiles: [String] = []
     for source in srcs {
         do {
             let sourceContent = try localFileSystem.getDirectoryContents(AbsolutePath(source.path))
             for file in sourceContent {
                 let content = Path(source.path) + Path(file)
                 if content.isFile {
-                    filePath(content.absolute().string)
+                    allFiles.append(content.absolute().string)
                     //print("Content \(file.blue) is directory: \(String(content.isDirectory).green)")
                 }
             }
@@ -47,8 +61,14 @@ func readFilePath(_ srcs: [SourceConfig], filePath: (String) -> Void) -> Void {
             print(Error(hint: "Is the configured source a folder or does it exist?", message: "Could not read the folder: \(source.path)"))
         }
     }
+    return allFiles
 }
 
+//###########################################
+//    create all the library sub folders    #
+//    according the EXIF dates in of the    #
+//      files that have to be copied        #
+//###########################################
 func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (String) -> Void) {
     let dates = dateExif(file)
     for lib in libs {
@@ -66,6 +86,11 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (String
     }
 }
 
+//###########################################
+//    extract the EXIF data of the file     #
+//    to build the folder structure where   #
+//    it has to be copied i.e. moved        #
+//###########################################
 func getFolderStructure(exif: DateExif) -> String? {
     if let date_original = exif.date_original {
         return "/\(date_original.year)/\(date_original.month)/\(date_original.day)"
