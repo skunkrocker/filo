@@ -5,16 +5,12 @@ import SwiftExif
 import Foundation
 import Foundation
 
-//###########################################
-//       read the paths for each file       #
-//       that is found in the configured    #
-//          folders in the config db        #
-//       the folders in the library folder  #
-//      will be created by the pattern      #
-//      yyyy/MM/dd and will copy all the    #
-//      files according to their EXIF in    #
-//      the appropriate library folder      #
-//###########################################
+//########################################################################
+//       read the paths for each file that is found in the configured    #
+//       folders in the config db the folders in the library folder      #
+//      will be created by the pattern yyyy/MM/dd and will copy all the  #
+//      files according to their EXIF in the appropriate library folder  #
+//########################################################################
 func forAllSrcAndLibs() {
     SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd"]
 
@@ -26,10 +22,13 @@ func forAllSrcAndLibs() {
             return
         }
         let progress = barz(total: files.count)
-        for (index, file) in files.enumerated() {
-            createLibraryFolders(config.libs, file: file) { libPath in
-                //TODO copy the file in all library target folders
-                progress.update(index + 1, file.bold)
+        for (index, mediaFile) in files.enumerated() {
+            createLibraryFolders(config.libs, file: mediaFile.value.string) { libDestination in
+               
+                let destFile = libDestination + Path(mediaFile.key)
+                copy(mediaFile: mediaFile, destFile: destFile)
+
+                progress.update(index + 1, destFile.string.bold)
                 Thread.sleep(forTimeInterval: 1)
             }//end read file path
         }//end of files loop
@@ -37,24 +36,41 @@ func forAllSrcAndLibs() {
     }// end connect db
 }
 
+//########################################################################
+//          copy the media file to the destination in the library        #
+//########################################################################
+private func copy(mediaFile: Base.Element, destFile: Path) {
+    if !destFile.exists {
+        do {
+            let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.value.string))
+            try localFileSystem.writeFileContents(AbsolutePath(destFile.string), bytes: fileContent)
+        } catch {
+            //TODO what happens with failed copies
+        }
+    }
+}
+
 //###########################################
 //      read the paths of the files in      #
 //      the configured source folders       #
 //###########################################
-fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> [String] {
+fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, Path> {
     if srcs.isEmpty {
         print(Error(hint: "Try config command to configure source folders.", message: "There are no sources configured."))
-        return []
+        return [:]
     }
-    var allFiles: [String] = []
+    var allFiles: Dictionary<String, Path> = [:]
     for source in srcs {
         do {
             let sourceContent = try localFileSystem.getDirectoryContents(AbsolutePath(source.path))
             for file in sourceContent {
-                let content = Path(source.path) + Path(file)
-                if content.isFile {
-                    allFiles.append(content.absolute().string)
-                    //print("Content \(file.blue) is directory: \(String(content.isDirectory).green)")
+                let thePath = Path(source.path) + Path(file)
+                let isSimpleFile = thePath.isFile
+                        && !thePath.isSymlink
+                        && !thePath.isExecutable
+                        && !thePath.isDirectory
+                if isSimpleFile {
+                    allFiles[file] = thePath.absolute()
                 }
             }
         } catch {
@@ -64,12 +80,12 @@ fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> [String] {
     return allFiles
 }
 
-//###########################################
-//    create all the library sub folders    #
-//    according the EXIF dates in of the    #
-//      files that have to be copied        #
-//###########################################
-func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (String) -> Void) {
+//########################################################
+//          create all the library sub folders           #
+//          according the EXIF dates in of the           #
+//            files that have to be copied               #
+//########################################################
+func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) -> Void) {
     let dates = dateExif(file)
     for lib in libs {
         if let subFolder = getFolderStructure(exif: dates) {
@@ -81,16 +97,16 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (String
                     //TODO figure out what to do with this
                 }
             }
-            copyTo(subFoldrPath.absolute().string + "/")
+            copyTo(subFoldrPath.absolute())
         }
     }
 }
 
-//###########################################
-//    extract the EXIF data of the file     #
-//    to build the folder structure where   #
-//    it has to be copied i.e. moved        #
-//###########################################
+//########################################################
+//            extract the EXIF data of the file          #
+//            to build the folder structure where        #
+//            it has to be copied i.e. moved             #
+//########################################################
 func getFolderStructure(exif: DateExif) -> String? {
     if let date_original = exif.date_original {
         return "/\(date_original.year)/\(date_original.month)/\(date_original.day)"

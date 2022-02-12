@@ -77,7 +77,7 @@ private let libTable = TextTable<TableLibraryConfig> {
 }
 
 func print(_ libs: [LibraryConfig]) {
-    print("\n    Photo Library".bold )
+    print("\n    Media Library".bold )
     var i = 0
     let tableSourceConfig = libs.map { (lib) -> TableLibraryConfig in
         let separator = i % 2 == 0 ? TRAFIC_LIGHT : TRAFIC_LIGHT_OPAQUE
@@ -88,7 +88,7 @@ func print(_ libs: [LibraryConfig]) {
 }
 
 //########################################################
-//          print source in the formated table          #
+//          print source in the formatted table          #
 //########################################################
 
 struct TableSourceConfig {
@@ -105,7 +105,7 @@ private let srcTable = TextTable<TableSourceConfig> {
 }
 
 func print(_ srcs: [SourceConfig]) {
-    print("\n    Photo source".bold )
+    print("\n    Media source".bold )
     var i = 0
     
     let tableSourceConfig = srcs.map { (src) -> TableSourceConfig in
