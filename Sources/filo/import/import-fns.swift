@@ -24,12 +24,13 @@ func forAllSrcAndLibs() {
         let progress = barz(total: files.count)
         for (index, mediaFile) in files.enumerated() {
             createLibraryFolders(config.libs, file: mediaFile.value.string) { libDestination in
-               
+
                 let destFile = libDestination + Path(mediaFile.key)
                 copy(mediaFile: mediaFile, destFile: destFile)
 
                 progress.update(index + 1, destFile.string.bold)
-                Thread.sleep(forTimeInterval: 1)
+                //TODO is animation throttling needed?
+                //Thread.sleep(forTimeInterval: 1)
             }//end read file path
         }//end of files loop
         progress.complete()
