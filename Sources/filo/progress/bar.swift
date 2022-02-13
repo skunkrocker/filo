@@ -43,8 +43,8 @@ func barz(type: BarType = .pac, total: Int = 100) -> (update: (Int, String?) -> 
     let terminal      = TerminalController(stream: sout)
     let terminalWidth = TerminalController.self.terminalWidth()!
     
-    let w     = Double(terminalWidth) / 1.2
-    let width = Int(w)
+    let termWidth = terminalWidth.to_d() / 1.2
+    let width = termWidth.to_i()
     
     return (
         update: { (step, header) in

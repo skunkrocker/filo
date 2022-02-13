@@ -26,7 +26,7 @@ func forAllSrcAndLibs() {
             createLibraryFolders(config.libs, file: mediaFile.value.string) { libDestination in
 
                 let destFile = libDestination + Path(mediaFile.key)
-                copy(mediaFile: mediaFile, destFile: destFile)
+                copy(mediaFile: mediaFile.value, destFile: destFile)
 
                 progress.update(index + 1, destFile.string.bold)
                 //TODO is animation throttling needed?
@@ -40,10 +40,10 @@ func forAllSrcAndLibs() {
 //########################################################################
 //          copy the media file to the destination in the library        #
 //########################################################################
-private func copy(mediaFile: Base.Element, destFile: Path) {
+private func copy(mediaFile: Path, destFile: Path) {
     if !destFile.exists {
         do {
-            let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.value.string))
+            let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.string))
             try localFileSystem.writeFileContents(AbsolutePath(destFile.string), bytes: fileContent)
         } catch {
             //TODO what happens with failed copies
@@ -51,10 +51,9 @@ private func copy(mediaFile: Base.Element, destFile: Path) {
     }
 }
 
-//###########################################
-//      read the paths of the files in      #
-//      the configured source folders       #
-//###########################################
+//########################################################################
+//      read the paths of the files in the configured source folders     #
+//########################################################################
 fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, Path> {
     if srcs.isEmpty {
         print(Error(hint: "Try config command to configure source folders.", message: "There are no sources configured."))
@@ -81,11 +80,10 @@ fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, Pat
     return allFiles
 }
 
-//########################################################
-//          create all the library sub folders           #
-//          according the EXIF dates in of the           #
-//            files that have to be copied               #
-//########################################################
+//########################################################################
+//          create all the library sub folders according the EXIF dates  #
+//                  of the files that have to be copied                  #
+//########################################################################
 func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) -> Void) {
     let dates = dateExif(file)
     for lib in libs {
@@ -103,11 +101,10 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) 
     }
 }
 
-//########################################################
-//            extract the EXIF data of the file          #
-//            to build the folder structure where        #
-//            it has to be copied i.e. moved             #
-//########################################################
+//########################################################################
+//            extract the EXIF data of the file to build                 #
+//            the folder structure where it has to be copied i.e. moved  #
+//########################################################################
 func getFolderStructure(exif: DateExif) -> String? {
     if let date_original = exif.date_original {
         return "/\(date_original.year)/\(date_original.month)/\(date_original.day)"
