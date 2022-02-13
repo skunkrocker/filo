@@ -24,9 +24,9 @@ private let exifTable = TextTable<EXIF> {
 }
 
 func print(exifDict: [String: [String: String]] ) {
-    
+
     var data: [EXIF] = []
-    
+
     for dc in exifDict {
         var i = 0
         for meta in dc.value {
@@ -77,11 +77,7 @@ private let libTable = TextTable<TableLibraryConfig> {
 }
 
 func print(_ libs: [LibraryConfig]) {
-<<<<<<< HEAD
-    print("\n    Photo Library".bold )
-=======
     print("\n    Media Library".bold )
->>>>>>> feature/import-stuff
     var i = 0
     let tableSourceConfig = libs.map { (lib) -> TableLibraryConfig in
         let separator = i % 2 == 0 ? TRAFIC_LIGHT : TRAFIC_LIGHT_OPAQUE
@@ -92,11 +88,7 @@ func print(_ libs: [LibraryConfig]) {
 }
 
 //########################################################
-<<<<<<< HEAD
-//          print source in the formated table          #
-=======
 //          print source in the formatted table          #
->>>>>>> feature/import-stuff
 //########################################################
 
 struct TableSourceConfig {
@@ -113,25 +105,18 @@ private let srcTable = TextTable<TableSourceConfig> {
 }
 
 func print(_ srcs: [SourceConfig]) {
-<<<<<<< HEAD
-    print("\n    Photo source".bold )
-=======
     print("\n    Media source".bold )
->>>>>>> feature/import-stuff
     var i = 0
-    
+
     let tableSourceConfig = srcs.map { (src) -> TableSourceConfig in
         let separator = i % 2 == 0 ? TRAFIC_LIGHT : TRAFIC_LIGHT_OPAQUE
         i += 1
         return TableSourceConfig(separator: separator, src: src)
     }
-    
+
     srcTable.print(tableSourceConfig, style: Style.plain)
 }
-<<<<<<< HEAD
-=======
 
 func noFilesFound() {
     print("💡 " +  "Nothing found in the source folders".yellow.bold)
 }
->>>>>>> feature/import-stuff

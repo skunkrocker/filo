@@ -38,7 +38,7 @@ func dateExif(_ path: String) -> DateExif {
     return dateExif
 }
 func date(of isoDate: String) -> DateInRegion? {
-    if isoDate != nil && isoDate != "" {
+    if isoDate != "" {
         return isoDate.toDate()
     }
     return nil
