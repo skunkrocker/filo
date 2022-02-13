@@ -8,12 +8,20 @@ import Foundation
 
 let manager = FileManager.default
 
+<<<<<<< HEAD
 protocol DBConfig: Codable, FetchableRecord, PersistableRecord  {
+=======
+protocol DBConfig: Codable, FetchableRecord, PersistableRecord {
+>>>>>>> feature/import-stuff
     var path: String { get }
     var name: String { get }
 }
 
+<<<<<<< HEAD
 struct LibraryConfig:  DBConfig  {
+=======
+struct LibraryConfig: DBConfig {
+>>>>>>> feature/import-stuff
     let path: String
     let name: String
 }
@@ -23,19 +31,36 @@ struct SourceConfig: DBConfig {
     let name: String
 }
 
+<<<<<<< HEAD
+=======
+let sourceConfigType = SourceConfig(path: "", name: "").self
+let libraryConfigType = LibraryConfig(path: "", name: "").self
+
+>>>>>>> feature/import-stuff
 let configDir: Path = Path("~/.filo")
 let configFile: Path = configDir + Path("filo.sqlite")
 
 func filoConf() -> String {
+<<<<<<< HEAD
     
     if !configDir.exists {
         do{
             try manager.createDirectory(atPath: configDir.absolute().string , withIntermediateDirectories: true, attributes: nil)
+=======
+
+    if !configDir.exists {
+        do {
+            try manager.createDirectory(atPath: configDir.absolute().string, withIntermediateDirectories: true, attributes: nil)
+>>>>>>> feature/import-stuff
         } catch {
             print(Error(hint: "Consider creating the folder '~/.filo'.", message: "Could not create the folder under $HOME directory."))
         }
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> feature/import-stuff
     return configFile.absolute().string
 }
 
@@ -89,7 +114,11 @@ func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: Data
                                                                onSuccess: ([T]) -> Void,
                                                                onNotFound: () -> Void,
                                                                onError: (Error) -> Void
+<<<<<<< HEAD
 )  {
+=======
+) {
+>>>>>>> feature/import-stuff
     do {
         let entityList = try dataBase.read { db in
             try (T).fetchAll(db)
@@ -99,12 +128,48 @@ func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: Data
         } else {
             onSuccess(entityList)
         }
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> feature/import-stuff
     } catch {
         onError(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
     }
 }
 
+<<<<<<< HEAD
+=======
+func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: DatabaseQueue, forType: T, onSuccess: ([T]) -> Void) -> Void {
+    do {
+        let entityList = try dataBase.read { db in
+            try (T).fetchAll(db)
+        }
+        if !entityList.isEmpty {
+            onSuccess(entityList)
+        }
+
+    } catch {
+        print(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
+    }
+}
+
+func findAll<T: Codable & FetchableRecord & PersistableRecord>(in dataBase: DatabaseQueue, forType: T) -> [T] {
+    do {
+        let entityList = try dataBase.read { db in
+            try (T).fetchAll(db)
+        }
+        if !entityList.isEmpty {
+            return entityList
+        }
+
+    } catch {
+        print(Error(hint: "Call config command with '-i' flag.", message: "Failed to read config."))
+    }
+    return []
+}
+
+>>>>>>> feature/import-stuff
 func printAllLib(in dataBase: DatabaseQueue) {
     do {
         let entityList = try dataBase.read { db in
@@ -127,7 +192,11 @@ func storeLibConfig(dataBase: DatabaseQueue?, lib: LibraryConfig) -> Void {
             try lib.insert(db)
         }
     } catch {
+<<<<<<< HEAD
         print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store library: \(lib.name)"))
+=======
+        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder", message: "Failed to store library: \(lib.name)"))
+>>>>>>> feature/import-stuff
     }
 }
 
@@ -153,6 +222,35 @@ func storeSrcConfig(dataBase: DatabaseQueue?, src: SourceConfig) -> Void {
             try src.insert(db)
         }
     } catch {
+<<<<<<< HEAD
         print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder" , message: "Failed to store source: \(src.name)"))
     }
+=======
+        print(Error(hint: "Check if write access is available to '$HOME/.filo/' folder", message: "Failed to store source: \(src.name)"))
+    }
+}
+
+func srcAndLibConfig(in db: DatabaseQueue) -> (srcs: [SourceConfig], libs: [LibraryConfig]) {
+    let libConfigs = findAll(in: db, forType: libraryConfigType)
+    if libConfigs.isEmpty {
+        print(Error(hint: "Consider using the config command.", message: "No library folders config found."))
+        return (
+                srcs: [],
+                libs: []
+        )
+    }
+
+    let srcConfigs = findAll(in: db, forType: sourceConfigType)
+    if srcConfigs.isEmpty {
+        print(Error(hint: "Consider using the config command.", message: "No source folders config found."))
+        return (
+                srcs: [],
+                libs: []
+        )
+    }
+    return (
+            srcs: srcConfigs,
+            libs: libConfigs
+    )
+>>>>>>> feature/import-stuff
 }

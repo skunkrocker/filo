@@ -5,6 +5,7 @@ import Foundation
 import ArgumentParser
 
 struct Exif: ParsableCommand {
+<<<<<<< HEAD
     
     public static let configuration = conf("Extract the EXIF Data of a single image and prints it out.")
     
@@ -23,5 +24,15 @@ struct Exif: ParsableCommand {
         }
         
         print(exifDict: exifDict)
+=======
+
+    public static let configuration = conf("Extract the EXIF Data of a single image and prints it out.")
+
+    @Argument(help: help_blue("Path to the EXIF data photo."))
+    private var path: String
+
+    func run() throws {
+        printExif(path)
+>>>>>>> feature/import-stuff
     }
 }
