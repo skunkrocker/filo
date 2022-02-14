@@ -4,8 +4,9 @@ A description of this package.
 
 ### Installation
 
-This tool uses the  the libexif dev library.
-To install it on Ubuntu ru:n
+The ```ffprobe``` is being utilized, make sure it is installed.
+The ```libexif``` dev library is utilized. Make sure it is installed.
+To install it on Ubuntu run.
 ```
 apt install -y libiptc-data libexif-dev libiptcdata0-dev
 ```
