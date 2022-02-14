@@ -19,7 +19,7 @@ func probe(_ file: String, success: (String) -> Void) -> Void {
     }
 }
 
-func probeDate(_ file: String, success: (String) -> Void) -> Void {
+func videoCreateDate(_ file: String, success: (String) -> Void) -> Void {
     probe(file) { output in
         do {
             let json = try JSON(string: output)

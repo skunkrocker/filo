@@ -14,7 +14,10 @@ struct Test: ParsableCommand {
     func run() throws {
         let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
 
-        probeDate(file) { creationTime in
+        let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
+        print("Is Movie: \(url.isMovie)")
+
+        videoCreateDate(file) { creationTime in
             print(creationTime.toDate()!)
             print("The creation time: \(creationTime)")
         }
