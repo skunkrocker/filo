@@ -1,11 +1,11 @@
 import TSCBasic
 import Foundation
 
-func ffProbe(success: (String) -> Void) -> Void {
+func probe(_ file: String, success: (String) -> Void) -> Void {
     let ffprobe = Process(args: "ffprobe",
             "-v",
             "quiet",
-            "./Tests/src3/20220213_154429.mp4",
+            "\(file)",
             "-print_format",
             "json",
             "-show_entries",
@@ -19,8 +19,8 @@ func ffProbe(success: (String) -> Void) -> Void {
     }
 }
 
-func createDate(success: (String) -> Void) -> Void {
-    ffProbe { output in
+func probeDate(_ file: String, success: (String) -> Void) -> Void {
+    probe(file) { output in
         do {
             let json = try JSON(string: output)
             if let format: JSON = try? json.get("format") {

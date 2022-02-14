@@ -12,8 +12,9 @@ struct Test: ParsableCommand {
     public static let configuration = conf("Testing stuff around.")
 
     func run() throws {
+        let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
 
-        createDate { creationTime in
+        probeDate(file) { creationTime in
             print(creationTime.toDate()!)
             print("The creation time: \(creationTime)")
         }
