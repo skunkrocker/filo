@@ -3,50 +3,41 @@ import TSCBasic
 import Foundation
 
 func barr(type: BarType = .pac, total: Int = 100) -> (Int) -> Void {
-    let sout     = stdoutStream as WritableByteStream
-    let terminal = TerminalController(stream: sout)
-    let terminalWidth = TerminalController.self.terminalWidth()!
 
-    let termWidth = terminalWidth.to_d() / 1.2
-    let width = termWidth.to_i()
+    let width = terminal.width()
+    let iterm = terminal.instance()
 
     return { step in
         let barString = barStringByType(type, width: width, step: step, total: total)
-        terminal?.clearLine()
-        terminal?.write(barString)
+        iterm.clearLine()
+        iterm.write(barString)
     }
 }
 
 
 func barrr(type: BarType = .pac, total: Int = 100) -> (update: (Int) -> Void, complete: () -> Void)  {
-    let sout     = stdoutStream as WritableByteStream
-    let terminal = TerminalController(stream: sout)
-    let terminalWidth = TerminalController.self.terminalWidth()!
 
-    let termWidth = terminalWidth.to_d() / 1.2
-    let width = termWidth.to_i()
+    let width = terminal.width()
+    let iterm = terminal.instance()
 
     return (
             update: { step in
                 let barString = barStringByType(type, width: width, step: step, total: total)
-                terminal?.clearLine()
-                terminal?.write(barString)
+                iterm.clearLine()
+                iterm.write(barString)
             },
             complete: {
-                terminal?.endLine()
-                terminal?.write("Done".bold + " 🚀")
-                terminal?.endLine()
+                iterm.endLine()
+                iterm.write("Done".bold + " 🚀")
+                iterm.endLine()
             }
     )
 }
 
 func barz(type: BarType = .pac, total: Int = 100) -> (update: (Int, String?) -> Void, complete: () -> Void)  {
-    let sout          = stdoutStream as WritableByteStream
-    let terminal      = TerminalController(stream: sout)
-    let terminalWidth = TerminalController.self.terminalWidth()!
 
-    let termWidth = terminalWidth.to_d() / 1.2
-    let width = termWidth.to_i()
+    let width = terminal.width()
+    let iterm = terminal.instance()
 
     return (
             update: { (step, header) in
@@ -54,19 +45,19 @@ func barz(type: BarType = .pac, total: Int = 100) -> (update: (Int, String?) -> 
                 let barString = barStringByType(type, width: width, step: step, total: total)
 
                 if header != nil {
-                    terminal?.moveCursor(up: 1)
-                    terminal?.clearLine()
-                    terminal?.write(header!)
-                    terminal?.endLine()
+                    iterm.moveCursor(up: 1)
+                    iterm.clearLine()
+                    iterm.write(header!)
+                    iterm.endLine()
                 }
 
-                terminal?.clearLine()
-                terminal?.write(barString)
+                iterm.clearLine()
+                iterm.write(barString)
             },
             complete: {
-                terminal?.endLine()
-                terminal?.write("Done".bold + " 🚀")
-                terminal?.endLine()
+                iterm.endLine()
+                iterm.write("Done".bold + " 🚀")
+                iterm.endLine()
             }
     )
 }
