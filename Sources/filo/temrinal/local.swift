@@ -15,3 +15,49 @@ func localTerminal() -> (instance: () -> TerminalController, width: () -> Int) {
 }
 
 let terminal = localTerminal()
+
+// Old movies credits style
+struct InfoData {
+    let lineHead: String
+    let lineTails: String
+    let lineIcon: String
+}
+
+extension TerminalController {
+
+    func vintagePrint(_ infos: [InfoData]) {
+        let width = terminal.width()
+        for info in infos {
+            vintagePrint(width, info: info)
+        }
+    }
+
+    func vintagePrint(_ infos: [InfoData], header: String) {
+        let width = terminal.width()
+        let boldHeader = header.uppercased().bold
+        let widthWithoutHeader = (width - boldHeader.utf8.count ) / 2
+        let beforeHeader = " " * widthWithoutHeader
+
+        terminal.instance().write(beforeHeader + boldHeader + "\n")
+        for info in infos {
+            vintagePrint(width, info: info)
+        }
+    }
+
+    fileprivate func vintagePrint(_ width: Int, info: InfoData) -> Void {
+
+        let lineHeadBold = info.lineHead.uppercased().bold
+        let lineTailsBold = " " + info.lineTails.capitalized.bold
+        let lineHeadBoldCount = lineHeadBold.utf8.count
+        let lineTailBoldCount = lineTailsBold.utf8.count
+
+        let paddingCount = width - lineTailBoldCount - lineHeadBoldCount + 2
+
+        let message = info.lineIcon +
+                lineHeadBold +
+                " ".padding(toLength: paddingCount, withPad: "•", startingAt: 0) +
+                lineTailsBold
+
+        terminal.instance().write(message + "\n")
+    }
+}

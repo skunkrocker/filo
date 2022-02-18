@@ -18,8 +18,11 @@ struct Test: ParsableCommand {
         print("Is Movie: \(url.isMovie)")
 
         videoCreateDate(file) { creationTime in
-            print(creationTime.toDate()!)
-            print("The creation time: \(creationTime)")
+            let info1 = InfoData(lineHead: "date", lineTails: creationTime, lineIcon: "📆 ")
+            let info2 = InfoData(lineHead: "error", lineTails: "Crazy thing happened you ain't gonna believe it", lineIcon: "🔥 ")
+            let info3 = InfoData(lineHead: "info", lineTails: "All went good, job well done", lineIcon: "👍 ")
+
+            terminal.instance().vintagePrint([info1, info2, info3], header: "Is Movie: \(url.isMovie)".uppercased())
         }
 
         /*
