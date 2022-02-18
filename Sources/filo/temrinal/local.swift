@@ -16,8 +16,7 @@ func localTerminal() -> (instance: () -> TerminalController, width: () -> Int) {
 
 let terminal = localTerminal()
 
-// Old movies credits style
-struct InfoData {
+struct VintageInfo {
     let lineHead: String
     let lineTails: String
     let lineIcon: String
@@ -25,26 +24,32 @@ struct InfoData {
 
 extension TerminalController {
 
-    func vintagePrint(_ infos: [InfoData]) {
-        let width = terminal.width()
+    func vintagePrint(_ info: VintageInfo) {
+        let message = self.vintageMessage(info)
+        terminal.instance().write(message + "\n")
+    }
+
+    func vintagePrint(_ infos: [VintageInfo]) {
         for info in infos {
-            vintagePrint(width, info: info)
+            vintagePrint(info)
         }
     }
 
-    func vintagePrint(_ infos: [InfoData], header: String) {
+    func vintagePrint(_ infos: [VintageInfo], header: String) {
         let width = terminal.width()
         let boldHeader = header.uppercased().bold
-        let widthWithoutHeader = (width - boldHeader.utf8.count ) / 2
+        let widthWithoutHeader = (width - boldHeader.utf8.count) / 2
         let beforeHeader = " " * widthWithoutHeader
 
         terminal.instance().write(beforeHeader + boldHeader + "\n")
         for info in infos {
-            vintagePrint(width, info: info)
+            let message = self.vintageMessage(info)
+            terminal.instance().write(message + "\n")
         }
     }
 
-    fileprivate func vintagePrint(_ width: Int, info: InfoData) -> Void {
+    func vintageMessage(_ info: VintageInfo) -> String {
+        let width = terminal.width()
 
         let lineHeadBold = info.lineHead.uppercased().bold
         let lineTailsBold = " " + info.lineTails.capitalized.bold
@@ -57,7 +62,6 @@ extension TerminalController {
                 lineHeadBold +
                 " ".padding(toLength: paddingCount, withPad: "•", startingAt: 0) +
                 lineTailsBold
-
-        terminal.instance().write(message + "\n")
+        return message
     }
 }

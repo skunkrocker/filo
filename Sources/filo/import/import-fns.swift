@@ -28,8 +28,14 @@ func forAllSrcAndLibs() {
                 let destFile = libDestination + Path(mediaFile.key)
                 copy(mediaFile: mediaFile.value, destFile: destFile)
 
-                progress.update(index + 1, destFile.string.bold)
-                //TODO is animation throttling needed?
+                let message = terminal.instance().vintageMessage(
+                        VintageInfo(
+                                lineHead: "copy to",
+                                lineTails: destFile.shortAbs.string,
+                                lineIcon: "⚙️  ")
+                )
+
+                progress.update(index + 1, message)
                 //Thread.sleep(forTimeInterval: 1)
             }//end read file path
         }//end of files loop

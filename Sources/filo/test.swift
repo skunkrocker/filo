@@ -13,16 +13,16 @@ struct Test: ParsableCommand {
 
     func run() throws {
         let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
-
+        print(Path(file).shortAbs)
         let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
         print("Is Movie: \(url.isMovie)")
 
         videoCreateDate(file) { creationTime in
-            let info1 = InfoData(lineHead: "date", lineTails: creationTime, lineIcon: "📆 ")
-            let info2 = InfoData(lineHead: "error", lineTails: "Crazy thing happened you ain't gonna believe it", lineIcon: "🔥 ")
-            let info3 = InfoData(lineHead: "info", lineTails: "All went good, job well done", lineIcon: "👍 ")
+            let info1 = VintageInfo(lineHead: "date", lineTails: creationTime, lineIcon: "📆 ")
+            let info2 = VintageInfo(lineHead: "error", lineTails: "Crazy thing happened you ain't gonna believe it", lineIcon: "🔥 ")
+            let info3 = VintageInfo(lineHead: "info", lineTails: "All went good, job well done", lineIcon: "👍 ")
 
-            terminal.instance().vintagePrint([info1, info2, info3], header: "Is Movie: \(url.isMovie)".uppercased())
+            terminal.instance().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
         }
 
         /*
