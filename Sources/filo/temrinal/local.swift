@@ -1,7 +1,7 @@
 import TSCBasic
 import Foundation
 
-func localTerminal() -> (instance: () -> TerminalController, width: () -> Int) {
+func localTerminal() -> (get: () -> TerminalController, width: () -> Int) {
     let std_out = stdoutStream as WritableByteStream
     let terminal = TerminalController(stream: std_out)
     let termWidth = TerminalController.self.terminalWidth()!.to_d() * 0.9
@@ -9,7 +9,7 @@ func localTerminal() -> (instance: () -> TerminalController, width: () -> Int) {
     let width = (termWidth / 1.2).to_i()
 
     return (
-            instance: { terminal! },
+            get: { terminal! },
             width: { width }
     )
 }
@@ -20,13 +20,14 @@ struct VintageInfo {
     let lineHead: String
     let lineTails: String
     let lineIcon: String
+    var isPath = false
 }
 
 extension TerminalController {
 
     func vintagePrint(_ info: VintageInfo) {
         let message = self.vintageMessage(info)
-        terminal.instance().write(message + "\n")
+        terminal.get().write(message + "\n")
     }
 
     func vintagePrint(_ infos: [VintageInfo]) {
@@ -41,10 +42,10 @@ extension TerminalController {
         let widthWithoutHeader = (width - boldHeader.utf8.count) / 2
         let beforeHeader = " " * widthWithoutHeader
 
-        terminal.instance().write(beforeHeader + boldHeader + "\n")
+        terminal.get().write(beforeHeader + boldHeader + "\n")
         for info in infos {
             let message = self.vintageMessage(info)
-            terminal.instance().write(message + "\n")
+            terminal.get().write(message + "\n")
         }
     }
 
@@ -52,7 +53,8 @@ extension TerminalController {
         let width = terminal.width()
 
         let lineHeadBold = info.lineHead.uppercased().bold
-        let lineTailsBold = " " + info.lineTails.capitalized.bold
+        let tails = info.isPath ? info.lineTails : info.lineTails.capitalized
+        let lineTailsBold = " " + tails.bold
         let lineHeadBoldCount = lineHeadBold.utf8.count
         let lineTailBoldCount = lineTailsBold.utf8.count
 

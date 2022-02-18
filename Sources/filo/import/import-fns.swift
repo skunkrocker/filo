@@ -13,7 +13,7 @@ import Foundation
 //########################################################################
 func forAllSrcAndLibs() {
     SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd"]
-
+    var copied: [VintageInfo] = []
     connect { db in
         let config = srcAndLibConfig(in: db)
         let files = readFilePaths(config.srcs)
@@ -28,19 +28,21 @@ func forAllSrcAndLibs() {
                 let destFile = libDestination + Path(mediaFile.key)
                 copy(mediaFile: mediaFile.value, destFile: destFile)
 
-                let message = terminal.instance().vintageMessage(
-                        VintageInfo(
-                                lineHead: "copy to",
-                                lineTails: destFile.shortAbs.string,
-                                lineIcon: "⚙️  ")
-                )
+                let info = VintageInfo(
+                        lineHead: "copy to",
+                        lineTails: destFile.shortAbs.string,
+                        lineIcon: "📂 ", isPath: true)
+
+                let message = terminal.get().vintageMessage(info)
+                copied.append(info)
 
                 progress.update(index + 1, message)
-                //Thread.sleep(forTimeInterval: 1)
+                //Thread.sleep(forTimeInterval: 2)
             }//end read file path
         }//end of files loop
         progress.complete()
     }// end connect db
+    terminal.get().vintagePrint(copied, header: "files copied")
 }
 
 //########################################################################

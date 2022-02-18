@@ -22,7 +22,7 @@ struct Test: ParsableCommand {
             let info2 = VintageInfo(lineHead: "error", lineTails: "Crazy thing happened you ain't gonna believe it", lineIcon: "🔥 ")
             let info3 = VintageInfo(lineHead: "info", lineTails: "All went good, job well done", lineIcon: "👍 ")
 
-            terminal.instance().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
+            terminal.get().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
         }
 
         /*
