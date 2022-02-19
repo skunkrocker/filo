@@ -29,7 +29,7 @@ func forAllSrcAndLibs() {
                 copy(mediaFile: mediaFile.value, destFile: destFile)
 
                 let info = VintageInfo(
-                        lineHead: "copy to",
+                        lineHead: "\(mediaFile.key)",
                         lineTails: destFile.shortAbs.string,
                         lineIcon: "📂 ", isPath: true)
 

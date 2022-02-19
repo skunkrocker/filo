@@ -12,7 +12,24 @@ struct Test: ParsableCommand {
     public static let configuration = conf("Testing stuff around.")
 
     func run() throws {
-        let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
+        //let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
+        let file = "/Users/nik/Downloads/20220213_154429.mp4"
+        fileCreationDate(url: Path(file).url) { date in
+            print(date)
+        }
+
+        fileModificationDate(url: Path(file).url) { date in
+            print(date)
+        }
+
+        let video = Video(fileURL: NSURL(string: file)!)
+        print(video.mediaItemDictionary)
+
+        videoCreateDate(file) { creationTime in
+            print("The creation date from ffprobe \(creationTime)")
+        }
+
+        /*
         print(Path(file).shortAbs)
         let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
         print("Is Movie: \(url.isMovie)")
@@ -24,6 +41,7 @@ struct Test: ParsableCommand {
 
             terminal.get().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
         }
+         */
 
         /*
         let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
