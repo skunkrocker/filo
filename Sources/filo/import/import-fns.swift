@@ -12,7 +12,7 @@ import Foundation
 //      files according to their EXIF in the appropriate library folder  #
 //########################################################################
 func forAllSrcAndLibs() {
-    SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd"]
+    SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
     var copied: [VintageInfo] = []
     connect { db in
         let config = srcAndLibConfig(in: db)
@@ -115,20 +115,20 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) 
 //########################################################################
 func getFolderStructure(exif: DateExif) -> String? {
     if let date_original = exif.date_original {
-        return "/\(date_original.year)/\(date_original.month)/\(date_original.day)"
         //print("date_original: day: \(date_original.day), month: \(date_original.month), year: \(date_original.year)")
+        return "/\(date_original.year)/\(date_original.month)/\(date_original.day)"
     }
     if let date_time = exif.date_time {
-        return "/\(date_time.year)/\(date_time.month)/\(date_time.day)"
         //print("date_time: day: \(date_time.day), month: \(date_time.month), year: \(date_time.year)")
+        return "/\(date_time.year)/\(date_time.month)/\(date_time.day)"
     }
     if let date_digitalized = exif.date_digitalized {
-        return "/\(date_digitalized.year)/\(date_digitalized.month)/\(date_digitalized.day)"
         //print("date_digitalized: day: \(date_digitalized.day), month: \(date_digitalized.month), year: \(date_digitalized.year)")
+        return "/\(date_digitalized.year)/\(date_digitalized.month)/\(date_digitalized.day)"
     }
     if let gps_date = exif.date_original {
-        return "/\(gps_date.year)/\(gps_date.month)/\(gps_date.day)"
         //print("gps_date: day: \(gps_date.day), month: \(gps_date.month), year: \(gps_date.year)")
+        return "/\(gps_date.year)/\(gps_date.month)/\(gps_date.day)"
     }
     return "/lost+found"
 }

@@ -15,9 +15,16 @@ fileprivate let date_original = "Date and Time (Original)"
 fileprivate let date_digitalized = "Date and Time (Digitized)"
 
 func dateExif(_ path: String) -> DateExif {
-    let url = URL(fileURLWithPath: path)
-    let exifImage = SwiftExif.Image(imagePath: url)
     var dateExif = DateExif()
+    let url = URL(fileURLWithPath: path)
+
+    if url.isMovie || url.isVideo {
+        videoCreateDate(path) { creationTime in
+            dateExif.date_original = creationTime.toDate() ?? nil
+        }
+        return dateExif
+    }
+    let exifImage = SwiftExif.Image(imagePath: url)
 
     for dc in exifImage.Exif() {
         for exif in dc.value {
@@ -37,6 +44,7 @@ func dateExif(_ path: String) -> DateExif {
     }
     return dateExif
 }
+
 func date(of isoDate: String) -> DateInRegion? {
     if isoDate != "" {
         return isoDate.toDate()
