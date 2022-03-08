@@ -3,7 +3,7 @@ import TSCBasic
 import SwiftDate
 import SwiftExif
 import Foundation
-import Foundation
+
 
 //########################################################################
 //       read the paths for each file that is found in the configured    #
@@ -11,9 +11,9 @@ import Foundation
 //      will be created by the pattern yyyy/MM/dd and will copy all the  #
 //      files according to their EXIF in the appropriate library folder  #
 //########################################################################
-func forAllSrcAndLibs() {
+func forAllSrcAndLibs(_ verbose: Bool) {
     SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
-    var copied: [VintageInfo] = []
+    let forVerbose = verbosePrint(verbose)
     connect { db in
         let config = srcAndLibConfig(in: db)
         let files = readFilePaths(config.srcs)
@@ -28,21 +28,14 @@ func forAllSrcAndLibs() {
                 let destFile = libDestination + Path(mediaFile.key)
                 copy(mediaFile: mediaFile.value, destFile: destFile)
 
-                let info = VintageInfo(
-                        lineHead: "copy to",
-                        lineTails: destFile.shortAbs.string,
-                        lineIcon: "📂 ", isPath: true)
-
-                let message = terminal.get().vintageMessage(info)
-                copied.append(info)
-
-                progress.update(index + 1, message)
+                forVerbose.add(destFile)
+                progress.update(index + 1, forVerbose.message())
                 //Thread.sleep(forTimeInterval: 2)
             }//end read file path
         }//end of files loop
         progress.complete()
     }// end connect db
-    terminal.get().vintagePrint(copied, header: "files copied")
+    forVerbose.print(verbose ? "FILES COPIED" : "")
 }
 
 //########################################################################
@@ -131,4 +124,31 @@ func getFolderStructure(exif: DateExif) -> String? {
         return "/\(gps_date.year)/\(gps_date.month)/\(gps_date.day)"
     }
     return "/lost+found"
+}
+
+func verbosePrint(_ verbose: Bool) -> (add: (Path) -> Void, print: (String) -> Void, message: () -> String) {
+    var copied: [VintageInfo] = []
+
+    return (
+            add: { path in
+                if !verbose {
+                    return
+                }
+                let info = VintageInfo(
+                        lineHead: "copy to",
+                        lineTails: path.shortAbs.string,
+                        lineIcon: "📂 ", isPath: true)
+
+                copied.append(info)
+            },
+            print: { header in
+                terminal.get().vintagePrint(copied, header: header)
+
+            },
+            message: { () -> String in
+                if copied.count > 0 {
+                    return terminal.get().vintageMessage(copied.last!)
+                }
+                return ""
+            })
 }
