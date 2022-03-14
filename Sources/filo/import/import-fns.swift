@@ -109,21 +109,25 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) 
 func getFolderStructure(exif: DateExif) -> String? {
     if let date_original = exif.date_original {
         //print("date_original: day: \(date_original.day), month: \(date_original.month), year: \(date_original.year)")
-        return "/\(date_original.year)/\(date_original.month)/\(date_original.day)"
+        return "/\(date_original.year)/\(dayOrMonthAs01(date_original.month))/\(dayOrMonthAs01(date_original.day))"
     }
     if let date_time = exif.date_time {
         //print("date_time: day: \(date_time.day), month: \(date_time.month), year: \(date_time.year)")
-        return "/\(date_time.year)/\(date_time.month)/\(date_time.day)"
+        return "/\(date_time.year)/\(date_time.month)/\(dayOrMonthAs01(date_time.day))"
     }
     if let date_digitalized = exif.date_digitalized {
         //print("date_digitalized: day: \(date_digitalized.day), month: \(date_digitalized.month), year: \(date_digitalized.year)")
-        return "/\(date_digitalized.year)/\(date_digitalized.month)/\(date_digitalized.day)"
+        return "/\(date_digitalized.year)/\(dayOrMonthAs01(date_digitalized.month))/\(dayOrMonthAs01(date_digitalized.day))"
     }
     if let gps_date = exif.date_original {
         //print("gps_date: day: \(gps_date.day), month: \(gps_date.month), year: \(gps_date.year)")
-        return "/\(gps_date.year)/\(gps_date.month)/\(gps_date.day)"
+        return "/\(gps_date.year)/\(dayOrMonthAs01(gps_date.month))/\(dayOrMonthAs01(gps_date.day))"
     }
     return "/lost+found"
+}
+
+func dayOrMonthAs01(_ number: Int) -> String {
+    number < 10 ? "0\(number)" : "\(number)"
 }
 
 func verbosePrint(_ verbose: Bool) -> (add: (Path) -> Void, print: (String) -> Void, message: () -> String) {
@@ -134,14 +138,21 @@ func verbosePrint(_ verbose: Bool) -> (add: (Path) -> Void, print: (String) -> V
                 if !verbose {
                     return
                 }
+
+                let shortPath = path.shortAbs.string
+                let fileName = path.url.lastPathComponent
+
                 let info = VintageInfo(
-                        lineHead: "copy to",
-                        lineTails: path.shortAbs.string,
+                        lineHead: fileName,
+                        lineTails: shortPath,
                         lineIcon: "📂 ", isPath: true)
 
                 copied.append(info)
             },
             print: { header in
+                if !verbose {
+                    return;
+                }
                 terminal.get().vintagePrint(copied, header: header)
 
             },
