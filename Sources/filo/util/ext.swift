@@ -65,3 +65,11 @@ extension Path {
         return self
     }
 }
+
+extension Dictionary {
+    func each(block: (Int, Key, Value) -> Void) -> Void {
+        for (index, element) in enumerated() {
+            block(index, element.key, element.value)
+        }
+    }
+}

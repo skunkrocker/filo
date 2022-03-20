@@ -22,11 +22,11 @@ func forAllSrcAndLibs(_ verbose: Bool) {
             return
         }
         let progress = barz(total: files.count)
-        for (index, mediaFile) in files.enumerated() {
-            createLibraryFolders(config.libs, file: mediaFile.value.string) { libDestination in
+        files.each { (index: Int, fileName: String, path: Path) in
+            createLibraryFolders(config.libs, file: path.string) { libDestination in
 
-                let destFile = libDestination + Path(mediaFile.key)
-                copy(mediaFile: mediaFile.value, destFile: destFile)
+                let destFile = libDestination + Path(fileName)
+                copy(mediaFile: path, destFile: destFile)
 
                 forVerbose.add(destFile)
                 progress.update(index + 1, forVerbose.message())

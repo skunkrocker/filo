@@ -193,22 +193,13 @@ func srcAndLibConfig(in db: DatabaseQueue) -> (srcs: [SourceConfig], libs: [Libr
     let libConfigs = findAll(in: db, forType: libraryConfigType)
     if libConfigs.isEmpty {
         print(Error(hint: "Consider using the config command.", message: "No library folders config found."))
-        return (
-                srcs: [],
-                libs: []
-        )
+        return (srcs: [], libs: [])
     }
 
     let srcConfigs = findAll(in: db, forType: sourceConfigType)
     if srcConfigs.isEmpty {
         print(Error(hint: "Consider using the config command.", message: "No source folders config found."))
-        return (
-                srcs: [],
-                libs: []
-        )
+        return (srcs: [], libs: [])
     }
-    return (
-            srcs: srcConfigs,
-            libs: libConfigs
-    )
+    return (srcs: srcConfigs, libs: libConfigs)
 }
