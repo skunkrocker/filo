@@ -29,13 +29,17 @@ func forAllSrcAndLibs(_ verbose: Bool) {
                 copy(mediaFile: srcPathWithFileName, destFile: destFile)
 
                 forVerbose.add(destFile)
-                progress.update(index + 1, forVerbose.message())
-                Thread.sleep(forTimeInterval: 2)
+                var headerMessage = forVerbose.message()
+                if headerMessage.isEmpty {
+                    headerMessage = "Copying file ".bold + TRAFIC_LIGHT + " " + fileNameWithExt.bold
+                }
+                progress.update(index + 1, headerMessage)
+                Thread.sleep(forTimeInterval: 0.5)
             }//end read file path
         }//end of files loop
         progress.complete()
     }// end connect db
-    forVerbose.print(verbose ? "FILES COPIED" : "")
+    forVerbose.print(verbose ? "Files Copied" : "")
 }
 
 fileprivate func destinationFile(_ mediaFile: Path, _ libFolder: Path, _ fileName: String) -> Path {
