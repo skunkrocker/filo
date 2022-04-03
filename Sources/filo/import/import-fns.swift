@@ -16,21 +16,21 @@ func forAllSrcAndLibs(_ verbose: Bool) {
     let forVerbose = verbosePrint(verbose)
     connect { db in
         let config = srcAndLibConfig(in: db)
-        let files = readFilePaths(config.srcs)
+        let files = readSrcFilePaths(config.srcs)
         if (files.isEmpty) {
             noFilesFound()
             return
         }
         let progress = barz(total: files.count)
-        files.each { (index: Int, fileName: String, path: Path) in
-            createLibraryFolders(config.libs, file: path.string) { libDestination in
+        files.each { (index: Int, fileNameWithExt: String, srcPathWithFileName: Path) in
+            createLibraryFolders(config.libs, file: srcPathWithFileName.string) { libDestination in
 
-                let destFile = libDestination + Path(fileName)
-                copy(mediaFile: path, destFile: destFile)
+                let destFile = destinationFile(srcPathWithFileName, libDestination, fileNameWithExt)//libDestination + Path(fileName)
+                copy(mediaFile: srcPathWithFileName, destFile: destFile)
 
                 forVerbose.add(destFile)
                 progress.update(index + 1, forVerbose.message())
-                //Thread.sleep(forTimeInterval: 2)
+                Thread.sleep(forTimeInterval: 2)
             }//end read file path
         }//end of files loop
         progress.complete()
@@ -38,24 +38,37 @@ func forAllSrcAndLibs(_ verbose: Bool) {
     forVerbose.print(verbose ? "FILES COPIED" : "")
 }
 
-//########################################################################
-//          copy the media file to the destination in the library        #
-//########################################################################
-private func copy(mediaFile: Path, destFile: Path) {
-    if !destFile.exists {
-        do {
-            let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.string))
-            try localFileSystem.writeFileContents(AbsolutePath(destFile.string), bytes: fileContent)
-        } catch {
-            //TODO what happens with failed copies
+fileprivate func destinationFile(_ mediaFile: Path, _ libFolder: Path, _ fileName: String) -> Path {
+    let movieOrImageFolder = appendMovieOrImage(mediaFile: mediaFile)
+    var newLibFilePath = libFolder
+    if !movieOrImageFolder.isEmpty {
+        newLibFilePath = libFolder + Path(movieOrImageFolder)
+        if !newLibFilePath.exists {
+            do {
+                try newLibFilePath.mkdir()
+            } catch {
+                //don't do anything
+            }
         }
     }
+    return newLibFilePath + Path(fileName)
+}
+
+fileprivate func appendMovieOrImage(mediaFile: Path) -> String {
+    var movieOrImageFolder = ""
+    let fileUrl = mediaFile.url
+    if fileUrl.isMovie || fileUrl.isVideo {
+        movieOrImageFolder = "video"
+    } else if fileUrl.isImage {
+        movieOrImageFolder = "image"
+    }
+    return movieOrImageFolder
 }
 
 //########################################################################
 //      read the paths of the files in the configured source folders     #
 //########################################################################
-fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, Path> {
+fileprivate func readSrcFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, Path> {
     if srcs.isEmpty {
         print(Error(hint: "Try config command to configure source folders.", message: "There are no sources configured."))
         return [:]
@@ -79,6 +92,20 @@ fileprivate func readFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, Pat
         }
     }
     return allFiles
+}
+
+//########################################################################
+//          copy the media file to the destination in the library        #
+//########################################################################
+fileprivate func copy(mediaFile: Path, destFile: Path) {
+    if !destFile.exists {
+        do {
+            let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.string))
+            try localFileSystem.writeFileContents(AbsolutePath(destFile.string), bytes: fileContent)
+        } catch {
+            //TODO what happens with failed copies
+        }
+    }
 }
 
 //########################################################################
