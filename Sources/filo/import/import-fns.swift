@@ -32,7 +32,7 @@ func forAllSrcAndLibs(_ verbose: Bool) {
                 forVerbose.add(destPathWithFileNameAndExt)
                 var headerMessage = forVerbose.message()
                 if headerMessage.isEmpty {
-                    headerMessage = "Copying file ".bold + TRAFIC_LIGHT + " " + fileNameWithExt.bold
+                    headerMessage = "Copying file ".blue.bold + TRAFIC_LIGHT + " " + fileNameWithExt.green.bold
                 }
                 progress.update(index + 1, headerMessage)
                 //Thread.sleep(forTimeInterval: 0.5)
