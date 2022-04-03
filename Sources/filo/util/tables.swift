@@ -105,7 +105,7 @@ private let srcTable = TextTable<TableSourceConfig> {
 }
 
 func print(_ srcs: [SourceConfig]) {
-    print("\n    Media source".bold )
+    print("\n    Media Source".bold )
     var i = 0
 
     let tableSourceConfig = srcs.map { (src) -> TableSourceConfig in
