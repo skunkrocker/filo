@@ -25,16 +25,17 @@ func forAllSrcAndLibs(_ verbose: Bool) {
         files.each { (index: Int, fileNameWithExt: String, srcPathWithFileName: Path) in
             createLibraryFolders(config.libs, file: srcPathWithFileName.string) { libDestination in
 
-                let destFile = destinationFile(srcPathWithFileName, libDestination, fileNameWithExt)//libDestination + Path(fileName)
-                copy(mediaFile: srcPathWithFileName, destFile: destFile)
-
-                forVerbose.add(destFile)
+                let destPathWithFileNameAndExt = destinationFile(srcPathWithFileName, libDestination, fileNameWithExt)
+                if !destPathWithFileNameAndExt.exists {
+                    copy(mediaFile: srcPathWithFileName, destFile: destPathWithFileNameAndExt)
+                }
+                forVerbose.add(destPathWithFileNameAndExt)
                 var headerMessage = forVerbose.message()
                 if headerMessage.isEmpty {
                     headerMessage = "Copying file ".bold + TRAFIC_LIGHT + " " + fileNameWithExt.bold
                 }
                 progress.update(index + 1, headerMessage)
-                Thread.sleep(forTimeInterval: 0.5)
+                //Thread.sleep(forTimeInterval: 0.5)
             }//end read file path
         }//end of files loop
         progress.complete()
@@ -55,7 +56,7 @@ fileprivate func destinationFile(_ mediaFile: Path, _ libFolder: Path, _ fileNam
             }
         }
     }
-    return newLibFilePath + Path(fileName)
+    return newLibFilePath + Path(fileName.deletingPrefix("."))
 }
 
 fileprivate func appendMovieOrImage(mediaFile: Path) -> String {
