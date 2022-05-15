@@ -8,7 +8,7 @@ struct MP3: ParsableCommand {
     public static let configuration = conf("Merge MP3 files into one file.")
     
     @Option(name: .shortAndLong,  help: help_green("The path of the input directory where the MP3 files are stored"))
-    private var input: String
+    private var input: String = "."
     
     @Option(name: .shortAndLong,  help: help_green("The folder of the merged MP3 folder"))
     private var file: String
