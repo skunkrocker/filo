@@ -7,49 +7,53 @@ struct MP3: ParsableCommand {
     
     public static let configuration = conf("Merge MP3 files into one file.")
     
-    //@Argument(help: help_blue("Folder path to the MP3 files."))
-    //private var path: String
-    
     @Option(name: .shortAndLong,  help: help_green("The path of the input directory where the MP3 files are stored"))
     private var input: String
     
     @Option(name: .shortAndLong,  help: help_green("The folder of the merged MP3 folder"))
-    private var output: String
+    private var file: String
     
     func run() throws {
-        let destPath = Path(input)
-        if destPath.exists {
-            exec(path: destPath, output: output)
+        let sourcePath = Path(input)
+        if sourcePath.exists {
+            mergeAll(from: sourcePath, to: file)
         }
     }
-}
-
-func exec(path: Path, output: String){
-    do{
-        var args = ["cat"]
+    
+    func mergeAll(from: Path, to: String){
+        catArgs(from) { args in
+            do{
+                let cat = Process()
+                let outputPipe = Pipe()
+                
+                cat.arguments = args
+                cat.standardOutput = outputPipe
+                cat.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+                
+                try cat.run()
+                
+                let catOutput: Data  = outputPipe
+                    .fileHandleForReading
+                    .readDataToEndOfFile()
+                
+                try Path(to).write(catOutput)
+                
+            } catch {
+                print("Error info: \(error)")
+            }
+        }
+    }
+    
+    func catArgs(_ path: Path, catArgs: ([String]) -> Void) {
         let mp3s = path.glob("*.mp3")
-        
         if mp3s.count == 0 {
             return
         }
-        mp3s.forEach { file in
-            args.append( file.string)
-        }
         
-        let completePipe = Pipe()
-        let process = Process()
+        var args = ["cat"]
+        let files = mp3s.map({ $0.string })
+        args.append(contentsOf: files)
         
-        process.arguments = args
-        process.standardOutput = completePipe
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        
-        try process.run()
-        
-        let input: Data  = completePipe
-            .fileHandleForReading
-            .readDataToEndOfFile()
-        try Path(output).write(input)
-    } catch {
-        print("Error info: \(error)")
+        catArgs(args)
     }
 }
