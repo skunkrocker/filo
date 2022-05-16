@@ -10,8 +10,8 @@ struct MP3: ParsableCommand {
     @Option(name: .shortAndLong,  help: help_green("The path of the input directory where the MP3 files are stored"))
     private var input: String = "."
     
-    @Flag(name: .shortAndLong,  help: help_green("Search MP3s on the next level in all sub dirs and merge files by dirctory"))
-    private var deep: Bool = false
+    @Flag(name: .shortAndLong,  help: help_green("Scan for MP3's in first level directories and merge the files by dirctory"))
+    private var scan: Bool = false
     
     @Option(name: .shortAndLong,  help: help_green("The folder of the merged MP3 folder"))
     private var file: String
@@ -19,7 +19,7 @@ struct MP3: ParsableCommand {
     func run() throws {
         let sourcePath = Path(input)
         if sourcePath.exists {
-            if deep {
+            if scan {
                 sourcePath.subDirs.forEach { subDir in
                     let lowerCase = subDir.dirName.replaceSpace(with: "-").lowercased()
                     let newDestFile = Path(file).addBeforeExt("-\(lowerCase)")
