@@ -2,6 +2,7 @@ import TSCBasic
 import Foundation
 
 func probe(_ file: String, success: (String) -> Void) -> Void {
+  do {
     let ffprobe = Process(args: "ffprobe",
             "-v",
             "quiet",
@@ -10,7 +11,6 @@ func probe(_ file: String, success: (String) -> Void) -> Void {
             "json",
             "-show_entries",
             "stream_tags:format_tags")
-    do {
         try ffprobe.launch()
         let result = try ffprobe.waitUntilExit()
         success(try result.utf8Output())

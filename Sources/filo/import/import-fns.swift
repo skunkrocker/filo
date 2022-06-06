@@ -105,8 +105,11 @@ fileprivate func readSrcFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, 
 fileprivate func copy(mediaFile: Path, destFile: Path) {
     if !destFile.exists {
         do {
+            try localFileSystem.copy(from: AbsolutePath(mediaFile.string), to: AbsolutePath(destFile.string))
+            /*
             let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.string))
             try localFileSystem.writeFileContents(AbsolutePath(destFile.string), bytes: fileContent)
+             */
         } catch {
             //TODO what happens with failed copies
         }
