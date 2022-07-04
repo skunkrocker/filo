@@ -24,3 +24,4 @@ To build from Sources, run:
 ```
  swift build
 ```
+![Screenshot](img/cli.png)
