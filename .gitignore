@@ -8,3 +8,9 @@ DerivedData/
 *.resolved
 filo.xcodeproj
 
+.idea/
+.swiftpm/
+Tests/lib/
+Tests/src/
+Tests/src2/
+Tests/src3/
