@@ -35,3 +35,37 @@ func videoCreateDate(_ file: String, success: (String) -> Void) -> Void {
         }
     }
 }
+
+func exifTool(_ file: String, success: (Dictionary<String, String>) -> Void) -> Void {
+    do {
+        let tool = Process(args: "exiftool",
+            "-j",
+            "\(file)"
+            )
+        try tool.launch()
+        let result = try tool.waitUntilExit()
+
+        var exifDates = Dictionary<String, String>()
+        let output = try result.utf8Output()
+
+        let json =  try JSON(string: output).getArray()
+        
+        tags(json: json.first!, { tag,value in
+            exifDates[tag] = value
+        })
+        
+        success(exifDates)
+
+    } catch {
+        print(error)
+    }
+}
+
+func tags(json: JSON, _ tagValue: (String,String) -> Void) -> Void {
+    ["CreateDate","ModifyDate"].forEach { 
+        let tag = $0
+        if let value: String = json.get(tag) {
+            tagValue(tag, value)
+        }
+    }
+}
