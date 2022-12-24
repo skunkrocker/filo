@@ -14,6 +14,7 @@ struct Test: ParsableCommand {
 
     func run() throws {
         
+        SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
         /*
         ExifTool.setExifTool("/Users/nik/.filo/exif-bin/exiftool")
 
@@ -32,6 +33,9 @@ struct Test: ParsableCommand {
         exifTool(file) { dates in
             var list = Array<VintageInfo>()
             for (tag, value) in dates {
+                if let date = value.toDate() {
+                  print("\(date.year)/\(date.month)/\(date.day)")
+                }
                 let info1 = VintageInfo(lineHead: tag, lineTails: value, lineIcon: "📆 ")
                 list.append(info1)
             }
