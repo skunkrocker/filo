@@ -16,6 +16,7 @@ let package = Package(
             .package(url: "https://github.com/cfilipov/TextTable", .branch("master")),
             .package(url: "https://github.com/malcommac/SwiftDate.git", from: "5.0.0"),
             .package(url:"https://github.com/apple/swift-argument-parser" , from: "0.0.1"),
+            .package(url: "https://github.com/kareman/SwiftShell.git", .upToNextMajor(from: "5.1.0")),
             .package(url: "https://github.com/apple/swift-tools-support-core.git", .upToNextMajor(from: "0.4.0"))
         ],
         targets: [
@@ -29,6 +30,7 @@ let package = Package(
                         .product(name: "TextTable", package: "TextTable"),
                         .product(name: "SwiftExif", package: "SwiftExif"),
                         .product(name: "SwiftDate", package: "SwiftDate"),
+                        .product(name: "SwiftShell", package: "SwiftShell"),
                         .product(name: "ArgumentParser", package: "swift-argument-parser"),
                         .product(name: "SwiftToolsSupport-auto", package: "swift-tools-support-core")
                     ]),
