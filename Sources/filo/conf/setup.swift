@@ -32,14 +32,14 @@ struct Setup: ParsableCommand{
             
             let home = try localFileSystem.homeDirectory.pathString + "/.bin"
             
-            let moonBar = moon(" Downloading ".bold + exifTar.bold.green,
-                               completeMessage: " Downloaded ".bold  + exifTar.bold.green)
+            let loadExifTarBar = aeon(.led2, " Downloading ".bold + exifTar.bold.green,
+                                      " Downloaded ".bold  + exifTar.bold.green)
             
             runAsync(wget,"-P", home ,  exifMacDownUrl + exifTar).onCompletion { command in
-                moonBar.complete()
+                loadExifTarBar.complete()
                 deleteWgetLog()
             }
-            moonBar.start()
+            loadExifTarBar.start()
         }
     }
 }
