@@ -37,7 +37,7 @@ struct Setup: ParsableCommand{
         }
     }
     
-    func wget() -> Promise<String> {
+    func findWgetOnPath() -> Promise<String> {
         Promise { seal in
             let wget = SwiftShell.run("which", "wget").stdout
             if wget.isEmpty {
@@ -48,7 +48,7 @@ struct Setup: ParsableCommand{
         }
     }
     
-    func tar() -> Promise<String> {
+    func findTarOnPath() -> Promise<String> {
         Promise { seal in
             let tar = SwiftShell.run("which", "tar").stdout
             if tar.isEmpty {
@@ -60,7 +60,7 @@ struct Setup: ParsableCommand{
     }
     
     
-    fileprivate func download(wget: String) -> Promise<Void> {
+    fileprivate func downloadExifTool(wget: String) -> Promise<Void> {
         return Promise { seal in
             
             var isCompleted = false
@@ -83,7 +83,7 @@ struct Setup: ParsableCommand{
         }
     }
     
-    fileprivate func extract(tar: String)  -> Promise<Void> {
+    fileprivate func extractExifTool(tar: String)  -> Promise<Void> {
         return Promise { seal in
             
             var isCompleted = false
@@ -109,25 +109,21 @@ struct Setup: ParsableCommand{
     
     func run() throws {
         
-        let queue = DispatchQueue.global()
-        let semaphore = DispatchSemaphore(value: 0)
-        
-        firstly {
-            wget()
-        }.then(on: queue) { wget in
-            download(wget: wget)
-        }.then(on: queue) {
-            tar()
-        }.then(on: queue) { tar in
-            extract(tar: tar)
-        }.done(on: queue) {
-            semaphore.signal()
-        }.catch(on: queue) { error in
-            print((error as NSError).userInfo["info"]!)
-            semaphore.signal()
+        waitOnQueue { queue, semaphore in
+            firstly {
+                findWgetOnPath()
+            }.then(on: queue) { wget in
+                downloadExifTool(wget: wget)
+            }.then(on: queue) {
+                findTarOnPath()
+            }.then(on: queue) { tar in
+                extractExifTool(tar: tar)
+            }.done(on: queue) {
+                semaphore.signal()
+            }.catch(on: queue) { error in
+                print((error as NSError).userInfo["info"]!)
+                semaphore.signal()
+            }
         }
-        
-        semaphore.wait()
-        
     }
 }
