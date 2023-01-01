@@ -7,7 +7,7 @@ func waitOnQueue(onQueueAndSem: (DispatchQueue, @escaping () -> Void) -> Void) -
     
     let stop: () -> () = {
        semaphore.signal()
-       return ()
+       () //funny way to return void
     }
     
     onQueueAndSem(queue, stop)

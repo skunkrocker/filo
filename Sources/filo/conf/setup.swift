@@ -61,7 +61,7 @@ struct Setup: ParsableCommand{
     
     
     fileprivate func downloadExifTool(wget: String) -> Promise<Void> {
-        return Promise { seal in
+        Promise { seal in
             
             waitForAsync { stopWaitingFn in
                 print(" Using ".bold + "\(wget)".bold.blue + " on $PATH".bold)
@@ -76,12 +76,12 @@ struct Setup: ParsableCommand{
                 }
                 loadExifTarBar.start()
             }
-            return seal.fulfill(())
+            seal.fulfill(())
         }
     }
     
     fileprivate func extractExifTool(tar: String)  -> Promise<Void> {
-        return Promise { seal in
+        Promise { seal in
             
             waitForAsync { stopWaitingFn in
                 print(" Using ".bold + "\(tar)".bold.blue + " on ".bold + "$PATH".bold)
@@ -95,7 +95,7 @@ struct Setup: ParsableCommand{
                 }
                 extractExifBar.start()
             }
-            return seal.fulfill(())
+            seal.fulfill(())
         }
     }
     
