@@ -12,6 +12,12 @@ struct Setup: ParsableCommand{
     
     public static let configuration = conf("Download ExifTool and extract it to $HOME/.bin")
     
+    var tmpTarFile: String {
+        return self.tmp + "/" + exifTar
+    }
+    
+    var tmp: String = "/tmp"
+    
     fileprivate func deleteWgetLog() {
         let wgetLog = Path("wget-log")
         if wgetLog.exists {
@@ -23,53 +29,11 @@ struct Setup: ParsableCommand{
         }
     }
     
-    fileprivate func downloadExifToolTar(_ wget: String, extract:  @escaping () -> Void) {
-        print(" Using ".bold + "\(wget)".bold.blue + " on your".bold + " $PATH".bold)
-        
-        //let home = try localFileSystem.homeDirectory.pathString + "/.bin"
-        let tempFolder = "/tmp"
-        
-        let loadExifTarBar = aeon(.led2, " Downloading ".bold + exifTar.bold.green,
-                                  " Downloaded ".bold  + exifTar.bold.green)
-        
-        runAsync(wget,"-P", tempFolder ,  exifMacDownUrl + exifTar).onCompletion { command in
-            loadExifTarBar.complete()
-            deleteWgetLog()
-            Thread.sleep(forTimeInterval: 2)
-            extract()
-        }
-        loadExifTarBar.start()
-    }
-    
-    fileprivate func extractTar() {
-        
-    }
-    
-    var tmpTarFile: String {
-        return self.tmp + "/" + exifTar
-    }
-    
-    var tmp: String {
-        do {
-            return try localFileSystem.tempDirectory.pathString
-        } catch {
-            return Path.home.string
-        }
-    }
-    
-    func wgetOnPath() -> String {
-        SwiftShell.run("which", "wget").stdout
-    }
-    
-    func tarOnPath() -> String {
-        SwiftShell.run("which", "tar").stdout
-    }
-    
     func wget() -> Promise<String> {
         Promise { seal in
-            let wget = wgetOnPath()
+            let wget = SwiftShell.run("which", "wget").stdout
             if wget.isEmpty {
-                print("wget".bold + "was not found on your " + "$PATH".bold)
+                print("wget".bold + "was not found on " + "$PATH".bold)
                 seal.reject(NSError())
             } else {
                 seal.fulfill(wget)
@@ -79,9 +43,9 @@ struct Setup: ParsableCommand{
     
     func tar() -> Promise<String> {
         Promise { seal in
-            let tar = tarOnPath()
+            let tar = SwiftShell.run("which", "tar").stdout
             if tar.isEmpty {
-                print("tar".bold + "was not found on your " + "$PATH".bold)
+                print("tar".bold + "was not found on " + "$PATH".bold)
                 seal.reject(NSError())
             } else {
                 seal.fulfill(tar)
@@ -90,12 +54,12 @@ struct Setup: ParsableCommand{
     }
     
     
-    fileprivate func download(wget: String) -> Promise<Bool> {
+    fileprivate func download(wget: String) -> Promise<Void> {
         return Promise { seal in
             
             var isCompleted = false
             
-            print(" Using ".bold + "\(wget)".bold.blue + " on your".bold + " $PATH".bold)
+            print(" Using ".bold + "\(wget)".bold.blue + " on ".bold + " $PATH".bold)
             
             let loadExifTarBar = aeon(.led2, " Downloading ".bold + exifTar.bold.green,
                                       " Downloaded ".bold  + exifTar.bold.green)
@@ -103,14 +67,13 @@ struct Setup: ParsableCommand{
             runAsync(wget,"-P", self.tmp ,  exifMacDownUrl + exifTar).onCompletion { command in
                 loadExifTarBar.complete()
                 deleteWgetLog()
-                Thread.sleep(forTimeInterval: 2)
                 isCompleted = true
             }
             loadExifTarBar.start()
             
             while !isCompleted {}
             
-            return seal.fulfill(true)
+            return seal.fulfill(())
         }
     }
     
@@ -119,21 +82,21 @@ struct Setup: ParsableCommand{
             
             var isCompleted = false
             
-            print(" Using ".bold + "\(tar)".bold.blue + " on your".bold + " $PATH".bold)
+            print(" Using ".bold + "\(tar)".bold.blue + " on ".bold + " $PATH".bold)
             
             let extractExifBar = aeon(.led2, " Extracting ".bold + exifTar.bold.green,
                                       " Extracted ".bold  + exifTar.bold.green)
             
-            runAsync(tar,"-xzfv", self.tmpTarFile, "-C", self.tmp).onCompletion { command in
+            runAsync(tar,"xzfv", self.tmpTarFile, "-C", self.tmp).onCompletion { command in
                 extractExifBar.complete()
-                Thread.sleep(forTimeInterval: 2)
                 isCompleted = true
             }
+            
             extractExifBar.start()
             
             while !isCompleted {}
             
-            return seal.resolve(.fulfilled(()))
+            return seal.fulfill(())
         }
     }
     
@@ -146,7 +109,7 @@ struct Setup: ParsableCommand{
         wget()
             .then(on: queue) { wget in
                 download(wget: wget)
-            }.then(on: queue) { _ in
+            }.then(on: queue) {
                 tar()
             }.then(on: queue) { tar in
                 extract(tar: tar)

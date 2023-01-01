@@ -9,7 +9,6 @@ let package = Package(
         ],
         dependencies: [
             .package(url: "https://github.com/onevcat/Rainbow", from: "4.0.0"),
-            //.package(url: "https://github.com/hlemai/ExifTool.git", from: "2.2.3"),
             .package(url: "https://github.com/mxcl/PromiseKit", from: "6.8.0"),
             .package(url: "https://github.com/kylef/PathKit.git", .branch("master")),
             .package(url: "https://github.com/groue/GRDB.swift.git", from: "5.19.0"),
@@ -27,7 +26,6 @@ let package = Package(
                         .product(name: "PathKit", package: "PathKit"),
                         .product(name: "GRDB", package: "GRDB.swift"),
                         .product(name: "Rainbow", package: "Rainbow"),
-                        //.product(name: "ExifTool", package: "ExifTool"),
                         .product(name: "TextTable", package: "TextTable"),
                         .product(name: "SwiftExif", package: "SwiftExif"),
                         .product(name: "SwiftDate", package: "SwiftDate"),
