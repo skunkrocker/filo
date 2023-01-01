@@ -1,12 +1,16 @@
 
 import Foundation
 
-func waitOnQueue(onQueueAndSem: (DispatchQueue, DispatchSemaphore) -> Void) -> Void {
+func waitOnQueue(onQueueAndSem: (DispatchQueue, @escaping () -> Void) -> Void) -> Void {
     let queue = DispatchQueue.global()
     let semaphore = DispatchSemaphore(value: 0)
     
-    onQueueAndSem(queue, semaphore)
+    let stop: () -> () = {
+       semaphore.signal()
+       return ()
+    }
+    
+    onQueueAndSem(queue, stop)
     
     semaphore.wait()
 }
-

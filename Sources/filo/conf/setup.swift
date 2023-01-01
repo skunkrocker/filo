@@ -109,7 +109,7 @@ struct Setup: ParsableCommand{
     
     func run() throws {
         
-        waitOnQueue { queue, semaphore in
+        waitOnQueue { queue, stop in
             firstly {
                 findWgetOnPath()
             }.then(on: queue) { wget in
@@ -119,10 +119,10 @@ struct Setup: ParsableCommand{
             }.then(on: queue) { tar in
                 extractExifTool(tar: tar)
             }.done(on: queue) {
-                semaphore.signal()
+                stop()
             }.catch(on: queue) { error in
                 print((error as NSError).userInfo["info"]!)
-                semaphore.signal()
+                stop()
             }
         }
     }
