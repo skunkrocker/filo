@@ -14,3 +14,17 @@ func waitOnQueue(onQueueAndSem: (DispatchQueue, @escaping () -> Void) -> Void) -
     
     semaphore.wait()
 }
+
+func waitForAsync(theAsync: ( @escaping () -> Void) -> Void) {
+    
+    let semaphore = DispatchSemaphore(value: 0)
+    
+    let stop: () -> () = {
+       semaphore.signal()
+       return ()
+    }
+    
+    theAsync(stop)
+    
+    semaphore.wait()
+}

@@ -63,22 +63,19 @@ struct Setup: ParsableCommand{
     fileprivate func downloadExifTool(wget: String) -> Promise<Void> {
         return Promise { seal in
             
-            var isCompleted = false
-            
-            print(" Using ".bold + "\(wget)".bold.blue + " on $PATH".bold)
-            
-            let loadExifTarBar = aeon(.led2, " Downloading ".bold + exifTar.bold.green,
-                                      " Downloaded ".bold  + exifTar.bold.green)
-            
-            runAsync(wget,"-P", self.tmp ,  exifMacDownUrl + exifTar).onCompletion { command in
-                loadExifTarBar.complete()
-                deleteWgetLog()
-                isCompleted = true
+            waitForAsync { stopWaitingFn in
+                print(" Using ".bold + "\(wget)".bold.blue + " on $PATH".bold)
+                
+                let loadExifTarBar = aeon(.led2, " Downloading ".bold + exifTar.bold.green,
+                                          " Downloaded ".bold  + exifTar.bold.green)
+                
+                runAsync(wget,"-P", self.tmp ,  exifMacDownUrl + exifTar).onCompletion { command in
+                    loadExifTarBar.complete()
+                    deleteWgetLog()
+                    stopWaitingFn()
+                }
+                loadExifTarBar.start()
             }
-            loadExifTarBar.start()
-            
-            while !isCompleted {}
-            
             return seal.fulfill(())
         }
     }
@@ -86,22 +83,18 @@ struct Setup: ParsableCommand{
     fileprivate func extractExifTool(tar: String)  -> Promise<Void> {
         return Promise { seal in
             
-            var isCompleted = false
-            
-            print(" Using ".bold + "\(tar)".bold.blue + " on ".bold + "$PATH".bold)
-            
-            let extractExifBar = aeon(.led2, " Extracting ".bold + exifTar.bold.green,
-                                      " Extracted ".bold  + exifTar.bold.green)
-            
-            runAsync(tar,"xzfv", self.tmpTarFile, "-C", self.tmp).onCompletion { command in
-                extractExifBar.complete()
-                isCompleted = true
+            waitForAsync { stopWaitingFn in
+                print(" Using ".bold + "\(tar)".bold.blue + " on ".bold + "$PATH".bold)
+                
+                let extractExifBar = aeon(.led2, " Extracting ".bold + exifTar.bold.green,
+                                          " Extracted ".bold  + exifTar.bold.green)
+                
+                runAsync(tar,"xzfv", self.tmpTarFile, "-C", self.tmp).onCompletion { command in
+                    extractExifBar.complete()
+                    stopWaitingFn()
+                }
+                extractExifBar.start()
             }
-            
-            extractExifBar.start()
-            
-            while !isCompleted {}
-            
             return seal.fulfill(())
         }
     }
@@ -109,7 +102,7 @@ struct Setup: ParsableCommand{
     
     func run() throws {
         
-        waitOnQueue { queue, stop in
+        waitOnQueue { queue, stopWaitingFn in
             firstly {
                 findWgetOnPath()
             }.then(on: queue) { wget in
@@ -119,10 +112,10 @@ struct Setup: ParsableCommand{
             }.then(on: queue) { tar in
                 extractExifTool(tar: tar)
             }.done(on: queue) {
-                stop()
+                stopWaitingFn()
             }.catch(on: queue) { error in
                 print((error as NSError).userInfo["info"]!)
-                stop()
+                stopWaitingFn()
             }
         }
     }
