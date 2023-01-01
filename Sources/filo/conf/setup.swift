@@ -18,6 +18,14 @@ struct Setup: ParsableCommand{
     
     var tmp: String = "/tmp"
     
+    func errorMessage(_ cmd: String) -> String {
+        cmd.bold.blue + " was not found".bold.red + " on $PATH".bold
+    }
+    
+    func rejectError(_ cmd: String) -> NSError {
+        NSError(domain: "localhost", code: 2000, userInfo: ["info": errorMessage(cmd)])
+    }
+    
     fileprivate func deleteWgetLog() {
         let wgetLog = Path("wget-log")
         if wgetLog.exists {
@@ -33,8 +41,7 @@ struct Setup: ParsableCommand{
         Promise { seal in
             let wget = SwiftShell.run("which", "wget").stdout
             if wget.isEmpty {
-                print("wget".bold + "was not found on " + "$PATH".bold)
-                seal.reject(NSError())
+                seal.reject(rejectError("wget"))
             } else {
                 seal.fulfill(wget)
             }
@@ -45,8 +52,7 @@ struct Setup: ParsableCommand{
         Promise { seal in
             let tar = SwiftShell.run("which", "tar").stdout
             if tar.isEmpty {
-                print("tar".bold + "was not found on " + "$PATH".bold)
-                seal.reject(NSError())
+                seal.reject(rejectError("tar"))
             } else {
                 seal.fulfill(tar)
             }
@@ -59,7 +65,7 @@ struct Setup: ParsableCommand{
             
             var isCompleted = false
             
-            print(" Using ".bold + "\(wget)".bold.blue + " on ".bold + " $PATH".bold)
+            print(" Using ".bold + "\(wget)".bold.blue + " on $PATH".bold)
             
             let loadExifTarBar = aeon(.led2, " Downloading ".bold + exifTar.bold.green,
                                       " Downloaded ".bold  + exifTar.bold.green)
@@ -82,7 +88,7 @@ struct Setup: ParsableCommand{
             
             var isCompleted = false
             
-            print(" Using ".bold + "\(tar)".bold.blue + " on ".bold + " $PATH".bold)
+            print(" Using ".bold + "\(tar)".bold.blue + " on ".bold + "$PATH".bold)
             
             let extractExifBar = aeon(.led2, " Extracting ".bold + exifTar.bold.green,
                                       " Extracted ".bold  + exifTar.bold.green)
@@ -117,7 +123,8 @@ struct Setup: ParsableCommand{
         }.done(on: queue) {
             semaphore.signal()
         }.catch(on: queue) { error in
-            //ignore
+            print((error as NSError).userInfo["info"]!)
+            semaphore.signal()
         }
         
         semaphore.wait()
