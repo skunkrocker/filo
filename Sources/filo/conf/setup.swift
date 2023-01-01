@@ -106,18 +106,19 @@ struct Setup: ParsableCommand{
         let queue = DispatchQueue.global()
         let semaphore = DispatchSemaphore(value: 0)
         
-        wget()
-            .then(on: queue) { wget in
-                download(wget: wget)
-            }.then(on: queue) {
-                tar()
-            }.then(on: queue) { tar in
-                extract(tar: tar)
-            }.done(on: queue) {
-                semaphore.signal()
-            }.catch(on: queue) { error in
-                //ignore
-            }
+        firstly {
+            wget()
+        }.then(on: queue) { wget in
+            download(wget: wget)
+        }.then(on: queue) {
+            tar()
+        }.then(on: queue) { tar in
+            extract(tar: tar)
+        }.done(on: queue) {
+            semaphore.signal()
+        }.catch(on: queue) { error in
+            //ignore
+        }
         
         semaphore.wait()
         
