@@ -6,13 +6,43 @@ import Foundation
 import AVFoundation
 import Photos
 import ArgumentParser
+//import ExifTool
 
 struct Test: ParsableCommand {
 
     public static let configuration = conf("Testing stuff around.")
 
     func run() throws {
-        let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
+        
+        SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
+        /*
+        ExifTool.setExifTool("/Users/nik/.filo/exif-bin/exiftool")
+
+        let file = "/Users/nik/Downloads/samsung-back/20210402_121841.mp4"
+        //let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
+        let url = URL(fileURLWithPath: file)
+        let exifData = ExifTool.read(fromurl: url)
+        for meta in exifData {
+            print("\(meta.key)->\(meta.value)")
+        }
+         */
+
+        let file = "/Users/nik/Downloads/samsung-back/20210402_121841.mp4"
+        let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
+        
+        exifTool(file) { dates in
+            var list = Array<VintageInfo>()
+            for (tag, value) in dates {
+                if let date = value.toDate() {
+                  print("\(date.year)/\(date.month)/\(date.day)")
+                }
+                let info1 = VintageInfo(lineHead: tag, lineTails: value, lineIcon: "📆 ")
+                list.append(info1)
+            }
+            terminal.get().vintagePrint(list, header: "did we find a movie: \(url.isMovie)".uppercased())
+        }
+
+        /*
         print(Path(file).shortAbs)
         let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
         print("Is Movie: \(url.isMovie)")
@@ -24,6 +54,7 @@ struct Test: ParsableCommand {
 
             terminal.get().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
         }
+         */
 
         /*
         let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
@@ -118,7 +149,6 @@ struct Test: ParsableCommand {
                 ].forEach { space in
                     print("\(space)")
                 }
-                 */
 
                 if asset.metadata.count > 0 {
                     for item in asset.metadata {
@@ -131,7 +161,6 @@ struct Test: ParsableCommand {
                     }
                 }
 
-                /*
                 for format in asset.availableMetadataFormats {
                     print("Keyspace: \(format)")
                     let mdFormat = asset.metadata(forFormat: format)

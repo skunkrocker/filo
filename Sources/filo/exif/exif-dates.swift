@@ -17,15 +17,28 @@ fileprivate let date_digitalized = "Date and Time (Digitized)"
 func dateExif(_ path: String) -> DateExif {
     var dateExif = DateExif()
     let url = URL(fileURLWithPath: path)
-
+    
     if url.isMovie || url.isVideo {
         videoCreateDate(path) { creationTime in
             dateExif.date_original = creationTime.toDate() ?? nil
         }
+        
+        if dateExif.date_original == nil {
+            exifTool(path) { dates in
+                //TODO this is not good, I want the create date first
+                for key in dates_of_interest {
+                    if let value = dates[key] {
+                        dateExif.date_original = date(of: value)
+                        break
+                    }
+                }
+            }
+        }
         return dateExif
     }
+    
     let exifImage = SwiftExif.Image(imagePath: url)
-
+    
     for dc in exifImage.Exif() {
         for exif in dc.value {
             if exif.key == date_time {
@@ -57,13 +70,13 @@ func printExif(_ path: String) {
     print(newLines)
     let url = URL(fileURLWithPath: path)
     let exifImage = SwiftExif.Image(imagePath: url)
-
+    
     let exifDict = exifImage.Exif()
-
+    
     if exifDict.isEmpty {
         print(Error(hint: "Check if the file name and the path are correct.", message: "Failed to load photo EXIF data."))
         return
     }
-
+    
     print(exifDict: exifDict)
 }
