@@ -15,6 +15,7 @@ let package = Package(
             .package(url: "https://github.com/kradalby/SwiftExif.git", from: "0.0.6"),
             .package(url: "https://github.com/cfilipov/TextTable", .branch("master")),
             .package(url: "https://github.com/malcommac/SwiftDate.git", from: "5.0.0"),
+            .package(url: "https://github.com/skunkrocker/SwiftBar.git", from: "1.0.0"),
             .package(url:"https://github.com/apple/swift-argument-parser" , from: "0.0.1"),
             .package(url: "https://github.com/kareman/SwiftShell.git", .upToNextMajor(from: "5.1.0")),
             .package(url: "https://github.com/apple/swift-tools-support-core.git", .upToNextMajor(from: "0.4.0"))
@@ -26,6 +27,7 @@ let package = Package(
                         .product(name: "PathKit", package: "PathKit"),
                         .product(name: "GRDB", package: "GRDB.swift"),
                         .product(name: "Rainbow", package: "Rainbow"),
+                        .product(name: "SwiftBar", package: "SwiftBar"),
                         .product(name: "TextTable", package: "TextTable"),
                         .product(name: "SwiftExif", package: "SwiftExif"),
                         .product(name: "SwiftDate", package: "SwiftDate"),

@@ -1,5 +1,6 @@
 import PathKit
 import TSCBasic
+import SwiftBar
 import SwiftShell
 import PromiseKit
 import Foundation
