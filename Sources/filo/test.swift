@@ -1,4 +1,5 @@
 import PathKit
+import SwiftBar
 import TSCBasic
 import SwiftDate
 import SwiftExif
