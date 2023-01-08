@@ -1,5 +1,6 @@
 import PathKit
 import TSCBasic
+import SwiftExt
 import SwiftExif
 import Foundation
 import ArgumentParser

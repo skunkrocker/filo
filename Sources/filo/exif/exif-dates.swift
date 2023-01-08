@@ -1,3 +1,4 @@
+import SwiftExt
 import SwiftBar
 import SwiftExif
 import SwiftDate
