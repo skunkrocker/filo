@@ -82,7 +82,7 @@ fileprivate func readSrcFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, 
     var allFiles: Dictionary<String, Path> = [:]
     for source in srcs {
         do {
-            let sourceContent = try localFileSystem.getDirectoryContents(AbsolutePath(source.path))
+            let sourceContent = try localFileSystem.getDirectoryContents(AbsolutePath(validating: source.path))
             for file in sourceContent {
                 let thePath = Path(source.path) + Path(file)
                 let isSimpleFile = thePath.isFile
@@ -106,7 +106,8 @@ fileprivate func readSrcFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, 
 fileprivate func copy(mediaFile: Path, destFile: Path) {
     if !destFile.exists {
         do {
-            try localFileSystem.copy(from: AbsolutePath(mediaFile.string), to: AbsolutePath(destFile.string))
+            try localFileSystem.copy(from: AbsolutePath(validating: mediaFile.string),
+                                     to: AbsolutePath(validating: destFile.string))
             /*
             let fileContent = try localFileSystem.readFileContents(AbsolutePath(mediaFile.string))
             try localFileSystem.writeFileContents(AbsolutePath(destFile.string), bytes: fileContent)
@@ -128,7 +129,7 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) 
             let subFoldrPath = Path(lib.path + "/" + subFolder)
             if !subFoldrPath.exists {
                 do {
-                    try makeDirectories(AbsolutePath(subFoldrPath.absolute().string))
+                    try makeDirectories(AbsolutePath(validating: subFoldrPath.absolute().string))
                 } catch {
                     //TODO figure out what to do with this
                 }
@@ -174,14 +175,13 @@ func verbosePrint(_ verbose: Bool) -> (add: (Path) -> Void, print: (String) -> V
                 if !verbose {
                     return
                 }
-
                 let shortPath = path.shortAbs.string
                 let fileName = path.url.lastPathComponent
 
                 let info = VintageInfo(
                         lineHead: fileName,
                         lineTails: shortPath,
-                        lineIcon: "📂 ", isPath: true)
+                        lineIcon: verboseFileTypeIcon(path), isPath: true)
 
                 copied.append(info)
             },
@@ -198,4 +198,18 @@ func verbosePrint(_ verbose: Bool) -> (add: (Path) -> Void, print: (String) -> V
                 }
                 return ""
             })
+}
+
+func verboseFileTypeIcon(_ path: Path) -> String {
+    let url = URL(string: path.absolute().string)
+    if (url!.isImage) {
+        return "🏞  "
+    }
+    if url!.isMovie || url!.isVideo {
+        return "🎬 "
+    }
+    if url!.isAudio {
+        return "🔉 "
+    }
+    return "🗃️ "
 }
