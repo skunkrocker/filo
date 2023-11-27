@@ -1,5 +1,6 @@
 import TSCBasic
 import Foundation
+import AVFoundation
 
 func probe(_ file: String, success: (String) -> Void) -> Void {
     do {
@@ -35,15 +36,18 @@ func videoCreateDate(_ file: String, success: (String) -> Void) -> Void {
         }
     }
 }
-
+//this doesn't work cause the exif tool is returning empty json content
 func exifTool(_ file: String, success: (Dictionary<String, String>) -> Void) -> Void {
     do {
-        let tool = Process(args: "exiftool", "-time:all", "-j", "\(file)")
+        let tool = Process(args: "exiftool", "-time:all", "-j", sanitize("\(file)"))
         try tool.launch()
         let result = try tool.waitUntilExit()
         
+        print("The result json output: \(try result.utf8Output())") 
+
         let json =  try JSON(string: result.utf8Output()).getArray()
-        
+
+
         if let fistElement: JSON = json.first {
             var exifDates = Dictionary<String, String>()
             tags(json: fistElement, { tag,value in
@@ -70,4 +74,34 @@ func tags(json: JSON, _ tagValue: (String,String) -> Void) -> Void {
             tagValue(tag, value)
         }
     }
+}
+
+let dateFormatter = DateFormatter()
+
+func avAssetCreateDate(_ file: String, onSuccess: @escaping (String) -> Void, onError: @escaping () -> Void) {
+    let videoURL: URL = URL(fileURLWithPath: file)
+    let asset: AVAsset = AVAsset(url: videoURL)
+    
+    asset.loadValuesAsynchronously(forKeys: ["creationDate"]) {
+        var error: NSError?
+        let status:AVKeyValueStatus = asset.statusOfValue(forKey: "creationDate", error: &error)
+        
+        switch status {
+            case .loaded:
+                if let creationDate:AVMetadataItem = asset.creationDate {
+                    let date = creationDate.value as! Date
+                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                    let dateString = dateFormatter.string(from: date)
+                    onSuccess(dateString)
+                }
+            case .failed, .cancelled, .loading, .unknown:
+                onError()
+            @unknown default:
+                onError()
+        }
+    }
+}
+
+func sanitize(_ string: String) -> String {
+    return string.replacingOccurrences(of: "\"", with: "\\\"")
 }

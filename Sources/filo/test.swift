@@ -1,6 +1,7 @@
 import PathKit
 import SwiftBar
 import SwiftExt
+import SwiftAsk
 import TSCBasic
 import SwiftDate
 import SwiftExif
@@ -8,177 +9,84 @@ import Foundation
 import AVFoundation
 import Photos
 import ArgumentParser
+import AVFoundation
+import ImageIO
 //import ExifTool
 
 struct Test: ParsableCommand {
-
+    
     public static let configuration = conf("Testing stuff around.")
-
+    
+    func extractImageWithIO(_ path: String) {
+        let fileURL =     URL(fileURLWithPath: path)
+        if let imageSource = CGImageSourceCreateWithURL(fileURL as CFURL, nil) {
+            let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)
+            if let dict = imageProperties as? [String: Any] {
+                if let exifDict = dict[kCGImagePropertyExifDictionary as String] as? [String: Any] {
+                    if let dateTimeOriginal = exifDict[kCGImagePropertyExifDateTimeOriginal as String] as? String {
+                        print("DateTimeOriginal from ImageIO: \(dateTimeOriginal)".yellow.bold)
+                    } 
+                    if let dateTimeDigitized = exifDict[kCGImagePropertyExifDateTimeDigitized as String] as? String {
+                        print("DateTimeDigitized from ImageIO: \(dateTimeDigitized)".blue.bold)
+                    }
+                }
+            }
+        }
+    }
+    
     func run() throws {
         
-        SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
-        /*
-        ExifTool.setExifTool("/Users/nik/.filo/exif-bin/exiftool")
-
-        let file = "/Users/nik/Downloads/samsung-back/20210402_121841.mp4"
-        //let file = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
-        let url = URL(fileURLWithPath: file)
-        let exifData = ExifTool.read(fromurl: url)
-        for meta in exifData {
-            print("\(meta.key)->\(meta.value)")
-        }
-         */
-
-        let file = "/Users/nik/Downloads/samsung-back/20210402_121841.mp4"
-        let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
+        print(DateFormatter().monthSymbols[11 - 1].capitalized)
+        print(DateFormatter().shortMonthSymbols[11 - 1].capitalized)
         
-        exifTool(file) { dates in
-            var list = Array<VintageInfo>()
-            for (tag, value) in dates {
-                if let date = value.toDate() {
-                  print("\(date.year)/\(date.month)/\(date.day)")
-                }
-                let info1 = VintageInfo(lineHead: tag, lineTails: value, lineIcon: "📆 ")
-                list.append(info1)
-            }
-            terminal.get().vintagePrint(list, header: "did we find a movie: \(url.isMovie)".uppercased())
-        }
-
+        SwiftDate.autoFormats = ["yyyy:MM:dd HH:mm:ss", "yyyy:MM:dd", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
+        
+        
+        let fileName = "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4"
+        
+        avAssetCreateDate(fileName, onSuccess:{ dateString in
+            print("AVAsset date: \(dateString)")
+        }, onError: {
+            print("Shipaide")
+        })
+        
+        extractImageWithIO("/Users/nik/projects/cli/filo/Tests/src/exif-example.jpeg")
         /*
-        print(Path(file).shortAbs)
-        let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
-        print("Is Movie: \(url.isMovie)")
-
-        videoCreateDate(file) { creationTime in
-            let info1 = VintageInfo(lineHead: "date", lineTails: creationTime, lineIcon: "📆 ")
-            let info2 = VintageInfo(lineHead: "error", lineTails: "Crazy thing happened you ain't gonna believe it", lineIcon: "🔥 ")
-            let info3 = VintageInfo(lineHead: "info", lineTails: "All went good, job well done", lineIcon: "👍 ")
-
-            terminal.get().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
-        }
+         let answer = askYesNo("Do you like pings?", color: .blue)
+         say("The answer was: \(answer)")
+         
+         print()
+         
+         let question = Question(question: "Wonna play game", color: .blue)
+         ask(question, .yes_or_no) {
+         say("Glad you agree!!".bold)
+         }
+         
+         let q = Question(question: "Wonna play game", color: .blue)
+         ask(q, .yes_no_brackets) { answer in
+         say("Glad you agree!!".bold)
+         }
+         
+         let a = ask(question, .yes_no_brackets)
+         say("You answered with: \(a)")
+         
+         ask(question, .yes_no_brackets) { answer in
+         say("The answer to your question is: \(answer) ", color: .cyan)
+         }
          */
-
+        
         /*
-        let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
-
-        let asset = AVURLAsset(url: url)
-
-        asset.availableMetadataFormats.forEach { format in
-
-            let metadata = asset.metadata(forFormat: format) //asset.commonMetadata
-            print("Format: \(format)")
-
-            [
-                AVMetadataIdentifier.isoUserDataDate,
-                AVMetadataIdentifier.id3MetadataDate,
-                AVMetadataIdentifier.quickTimeUserDataCreationDate,
-                AVMetadataIdentifier.id3MetadataRecordingDates,
-                AVMetadataIdentifier.commonIdentifierCreationDate,
-                AVMetadataIdentifier.commonIdentifierLastModifiedDate,
-            ]
-                    .forEach { identifier in
-                        print(identifier)
-
-                        let commonCreationDate = AVMetadataItem.metadataItems(from: metadata, filteredByIdentifier: identifier)
-                        if let creationDateItem = commonCreationDate.first {
-                            if let creationDate = creationDateItem.dataValue {
-                                print("creation date: \(creationDate)")
-                            } else {
-                                print("nothing")
-                            }
-                        }
-                    }
-        }
+         print(Path(file).shortAbs)
+         let url = URL(fileURLWithPath: "/Users/nik/projects/cli/filo/Tests/src3/20220213_154429.mp4")
+         print("Is Movie: \(url.isMovie)")
+         
+         videoCreateDate(file) { creationTime in
+         let info1 = VintageInfo(lineHead: "date", lineTails: creationTime, lineIcon: "📆 ")
+         let info2 = VintageInfo(lineHead: "error", lineTails: "Crazy thing happened you ain't gonna believe it", lineIcon: "🔥 ")
+         let info3 = VintageInfo(lineHead: "info", lineTails: "All went good, job well done", lineIcon: "👍 ")
+         
+         terminal.get().vintagePrint([info1, info2, info3], header: "did we find a movie: \(url.isMovie)".uppercased())
+         }
          */
-
-        /*
-        let commonCreationDate = AVMetadataItem.metadataItems(from: metadata,
-                filteredByIdentifier: .isoUserDataDate)
-
-        if let creationDateItem = commonCreationDate.first {
-            if let creationDate = creationDateItem.dataValue {
-                print("creation date: \(creationDate)")
-            } else {
-                print("nothing")
-            }
-        } else {
-            print("no creation date item")
-        }
-
-        let lastModifiedDate = AVMetadataItem.metadataItems(from: metadata,
-                filteredByIdentifier: .commonIdentifierLastModifiedDate)
-
-        if let lastModifiedDateItem = lastModifiedDate.first {
-            if let lastModifiedDate = lastModifiedDateItem.dataValue {
-                print("lastModifiedDate: \(lastModifiedDate)")
-            } else {
-                print("nothing")
-            }
-        } else {
-            print("no last date item")
-        }
-         */
-
-
-        //backUp(url: url)
-        Thread.sleep(forTimeInterval: 1)
     }
-
-    private func backUp(url: URL) {
-        let asset = AVAsset(url: url)
-        let formatsKey = "availableMetadataFormats"
-        let key = "availableMetadataFormats";
-
-        asset.loadValuesAsynchronously(forKeys: [key]) {
-            var error: NSError? = nil
-            let status = asset.statusOfValue(forKey: formatsKey, error: &error)
-            if let error = error {
-                print("Error occurred: \(error)")
-            }
-            print("Status: \(status.rawValue)")
-            if (status == .loaded) {
-                print(asset.metadata.count)
-                /*
-                [AVMetadataKeySpace.isoUserData,
-                 AVMetadataKeySpace.iTunes,
-                 AVMetadataKeySpace.quickTimeUserData,
-                 AVMetadataKeySpace.quickTimeMetadata,
-                 AVMetadataKeySpace.id3,
-                 AVMetadataKeySpace.audioFile,
-                 AVMetadataKeySpace.hlsDateRange,
-                 AVMetadataKeySpace.common,
-                 AVMetadataKeySpace.icy
-                ].forEach { space in
-                    print("\(space)")
-                }
-
-                if asset.metadata.count > 0 {
-                    for item in asset.metadata {
-                        print("Item key: \(item.key!)")
-                        if let val = item.value {
-                            if let key = item.keySpace {
-                                print("\(key) : \(val.description)")
-                            }
-                        }
-                    }
-                }
-
-                for format in asset.availableMetadataFormats {
-                    print("Keyspace: \(format)")
-                    let mdFormat = asset.metadata(forFormat: format)
-
-                    let creationDate = AVMetadataIdentifier.commonIdentifierCreationDate
-                    let metadata = AVMetadataItem.metadataItems(from: mdFormat, withKey: creationDate)
-                    //let metadata = AVMetadataItem.metadataItems(from: mdFormat, withKey: key, keySpace: AVMetadataKeySpace.common)
-                    print("MD Count: \(metadata.count)")
-                    if (metadata.count > 0) {
-                        let item = metadata[0];
-                        print(item)
-                    }
-                }
-                */
-            }
-        }
-    }
-
 }
