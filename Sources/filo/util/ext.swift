@@ -96,6 +96,18 @@ extension Path {
         }
         return self
     }
+    
+    var isNotSymlink: Bool {
+        return !self.isSymlink
+    }
+    
+    var isNotExecutable: Bool {
+        return !self.isExecutable
+    }
+    
+    var isNotDirectory: Bool {
+        return !self.isDirectory
+    }
 }
 
 extension Dictionary {

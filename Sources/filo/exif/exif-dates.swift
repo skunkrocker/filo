@@ -21,10 +21,15 @@ func dateExif(_ path: String) -> DateExif {
     let url = URL(fileURLWithPath: path)
     
     if url.isMovie || url.isVideo {
-        videoCreateDate(path) { creationTime in
+        avAssetCreateDate(path, onSuccess: { creationTime in
             dateExif.date_original = creationTime.toDate() ?? nil
-        }
-        
+        },onError: {
+            videoCreateDate(path) { creationTime in
+                dateExif.date_original = creationTime.toDate() ?? nil
+            }
+        })
+        /*
+        //this doesn't work cause the exif tool is returning empty json content
         if dateExif.date_original == nil {
             exifTool(path) { dates in
                 //TODO this is not good, I want the create date first
@@ -36,6 +41,7 @@ func dateExif(_ path: String) -> DateExif {
                 }
             }
         }
+        */
         return dateExif
     }
     

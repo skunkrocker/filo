@@ -87,9 +87,9 @@ fileprivate func readSrcFilePaths(_ srcs: [SourceConfig]) -> Dictionary<String, 
             for file in sourceContent {
                 let thePath = Path(source.path) + Path(file)
                 let isSimpleFile = thePath.isFile
-                        && !thePath.isSymlink
-                        && !thePath.isExecutable
-                        && !thePath.isDirectory
+                        && thePath.isNotSymlink
+                        && thePath.isNotExecutable
+                        && thePath.isNotDirectory
                 if isSimpleFile {
                     allFiles[file] = thePath.absolute()
                 }
@@ -147,25 +147,29 @@ func createLibraryFolders(_ libs: [LibraryConfig], file: String, copyTo: (Path) 
 func getFolderStructure(exif: DateExif) -> String? {
     if let date_original = exif.date_original {
         //print("date_original: day: \(date_original.day), month: \(date_original.month), year: \(date_original.year)")
-        return "/\(date_original.year)/\(dayOrMonthAs01(date_original.month))/\(dayOrMonthAs01(date_original.day))"
+        return "/\(date_original.year)/\(monthName(date_original.month))/\(dayAs01(date_original.day))"
     }
     if let date_time = exif.date_time {
         //print("date_time: day: \(date_time.day), month: \(date_time.month), year: \(date_time.year)")
-        return "/\(date_time.year)/\(date_time.month)/\(dayOrMonthAs01(date_time.day))"
+        return "/\(date_time.year)/\(monthName(date_time.month))/\(dayAs01(date_time.day))"
     }
     if let date_digitalized = exif.date_digitalized {
         //print("date_digitalized: day: \(date_digitalized.day), month: \(date_digitalized.month), year: \(date_digitalized.year)")
-        return "/\(date_digitalized.year)/\(dayOrMonthAs01(date_digitalized.month))/\(dayOrMonthAs01(date_digitalized.day))"
+        return "/\(date_digitalized.year)/\(monthName(date_digitalized.month))/\(dayAs01(date_digitalized.day))"
     }
     if let gps_date = exif.date_original {
         //print("gps_date: day: \(gps_date.day), month: \(gps_date.month), year: \(gps_date.year)")
-        return "/\(gps_date.year)/\(dayOrMonthAs01(gps_date.month))/\(dayOrMonthAs01(gps_date.day))"
+        return "/\(gps_date.year)/\(monthName(gps_date.month))/\(dayAs01(gps_date.day))"
     }
     return "/lost+found"
 }
 
-func dayOrMonthAs01(_ number: Int) -> String {
+func dayAs01(_ number: Int) -> String {
     number < 10 ? "0\(number)" : "\(number)"
+}
+
+func monthName(_ number: Int) -> String {
+    return DateFormatter().shortMonthSymbols[number - 1].lowercased()
 }
 
 func verbosePrint(_ verbose: Bool) -> (add: (Path) -> Void, print: (String) -> Void, message: () -> String) {
