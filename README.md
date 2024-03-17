@@ -24,5 +24,11 @@ To build from Sources, run:
 ```
  swift build
 ```
+To build release, run:
+```
+ swift build -c release
+```
+
+
 
 ![Screenshot](img/cli.png)
